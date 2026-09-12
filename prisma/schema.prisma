@@ -64,3 +64,27 @@ model VerificationToken {
 
   @@id([identifier, token])
 }
+
+
+model Style {
+  id             String   @id @default(cuid())
+
+  styleName      String
+  slug           String   @unique
+
+  images         String[]
+  prompt         String
+
+  tags           String[]
+  description    String?
+  advice         String?
+  isActive       Boolean  @default(true)
+
+  generationCost Int      @default(1)
+  createdBy      String   @default("Admin")
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([styleName])
+}
