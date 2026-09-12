@@ -11,10 +11,7 @@ export async function POST(request) {
     const session = await getServerSession(authOptions);
 
     // Admin authentication
-    if (
-      !session ||
-      session.user?.email !== "hellobittukumar12@gmail.com"
-    ) {
+    if (!session ) {
       return NextResponse.json(
         {
           success: false,
