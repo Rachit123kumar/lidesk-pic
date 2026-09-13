@@ -1,8 +1,21 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import Sidebar from '../../../components/SIdeBar';
 import { prisma } from '../../../../lib/prisma';
 import GenerateClient from '../../../components/generateClient';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '800'],
+  variable: '--font-body',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-mono',
+});
 
 export default async function StyleDetailsPage({ params }) {
   const { slug } = await params;
@@ -18,80 +31,118 @@ export default async function StyleDetailsPage({ params }) {
   }
 
   return (
-    <div className="h-screen max-h-screen bg-[#FAFAF8] text-[#0E0E10] flex flex-col lg:flex-row overflow-hidden selection:bg-[#FFC93C] selection:text-[#0E0E10]">
+    <div
+      className={`${inter.variable} ${jetbrainsMono.variable} h-screen max-h-screen bg-[#0A0A0F] text-[#F2F2F5] flex flex-col lg:flex-row overflow-hidden font-[family-name:var(--font-body)] selection:bg-[#7C5CFF] selection:text-white`}
+    >
       <Sidebar />
 
-      <main className="flex-1 flex flex-col h-full pt-14 lg:pt-0 w-full relative font-['Inter',_sans-serif] overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-        
-        {/* Header */}
-        <div className="flex items-center px-4 sm:px-6 md:px-10 py-5 border-b-2 border-[#0E0E10] bg-white sticky top-0 z-10 shadow-sm">
-          <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk',_sans-serif] uppercase tracking-tight">
-            {style.styleName}
-          </h1>
-        </div>
+      <main className="relative flex-1 h-full pt-14 lg:pt-0 w-full overflow-y-auto">
 
-        {/* Content Grid */}
-        <div className="p-4 sm:p-6 md:p-10 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          
-          {/* Left Column: Image */}
-          <div className="group border-2 border-[#0E0E10] rounded-sm shadow-[8px_8px_0_#0E0E10] hover:shadow-[12px_12px_0_#0E0E10] transition-shadow duration-300 overflow-hidden aspect-[4/5] bg-white relative">
-            {style.images?.[0] ? (
-              <Image 
-                src={style.images[0]} 
-                alt={style.styleName} 
-                fill
-                sizes="(max-w-768px) 100vw, 50vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center font-bold text-[#0E0E10] opacity-50 border-4 border-dashed border-[#0E0E10] m-4 w-[calc(100%-32px)] h-[calc(100%-32px)] bg-gray-100">
-                <span className="text-4xl mb-2">?</span>
-                <span className="uppercase tracking-widest text-sm">No Preview</span>
-              </div>
-            )}
+        {/* Ambient glow */}
+        <div className="pointer-events-none fixed top-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-[#7C5CFF]/20 blur-[140px]" />
+        <div className="pointer-events-none fixed bottom-[-10%] right-[5%] w-[500px] h-[500px] rounded-full bg-[#FF5CA8]/15 blur-[140px]" />
+
+        <div className="relative max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 py-8 lg:py-12">
+
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-8">
+            <span className="font-[family-name:var(--font-mono)] text-[12px] uppercase tracking-wider text-[#7C5CFF]">
+              Style
+            </span>
+            <span className="font-[family-name:var(--font-mono)] text-[12px] text-[#5C5C6E]">
+              #{style.id.toString().slice(0, 8)}
+            </span>
           </div>
 
-          {/* Right Column: Info & Actions */}
-          <div className="flex flex-col gap-8">
-            
-            {/* Description Card */}
-            <div className="border-2 border-[#0E0E10] rounded-sm bg-white p-6 sm:p-8 shadow-[4px_4px_0_#0E0E10]">
-              <h2 className="text-sm font-black border-b-2 border-[#0E0E10] pb-3 mb-4 uppercase tracking-widest flex items-center gap-2">
-                <span className="w-2 h-2 bg-[#4B3AFF] inline-block"></span>
-                Description
-              </h2>
-              <p className="text-base sm:text-lg leading-relaxed font-medium text-gray-800">
-                {style.description || "No description available for this style."}
-              </p>
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.05] mb-10 max-w-3xl">
+            {style.styleName}
+          </h1>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-6 lg:gap-8">
+
+            {/* Image card */}
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] lg:aspect-auto lg:h-[420px] max-w-[380px] lg:max-w-none mx-auto lg:mx-0 w-full bg-[#111117] ring-1 ring-white/10">
+              {style.images?.[0] ? (
+                <>
+                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#7C5CFF] via-transparent to-[#FF5CA8] opacity-40 blur-sm" />
+                  <Image
+                    src={style.images[0]}
+                    alt={style.styleName}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    className="object-cover rounded-2xl opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]"
+                    priority
+                  />
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="opacity-40">
+                    <rect x="3" y="3" width="18" height="18" rx="3" stroke="#F2F2F5" strokeWidth="1.4" />
+                    <circle cx="8.5" cy="8.5" r="1.5" stroke="#F2F2F5" strokeWidth="1.4" />
+                    <path d="M21 15l-5.5-5.5L4 21" stroke="#F2F2F5" strokeWidth="1.4" />
+                  </svg>
+                  <span className="text-[#8B8B9A] text-sm">No preview generated yet</span>
+                </div>
+              )}
             </div>
 
-            {/* Tags */}
-            {style.tags && style.tags.length > 0 && (
-              <div className="border-2 border-[#0E0E10] rounded-sm bg-[#FFC93C] p-6 sm:p-8 shadow-[4px_4px_0_#0E0E10]">
-                <h2 className="text-sm font-black border-b-2 border-[#0E0E10] pb-3 mb-4 uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 bg-[#0E0E10] inline-block"></span>
-                  Tags
-                </h2>
-                <div className="flex flex-wrap gap-3">
-                  {style.tags.map((tag, idx) => (
-                    <span 
-                      key={idx} 
-                      className="text-xs sm:text-sm font-bold px-3 py-1.5 border-2 border-[#0E0E10] bg-white text-[#0E0E10] rounded-sm uppercase tracking-wider hover:-translate-y-1 hover:shadow-[2px_2px_0_#0E0E10] transition-all cursor-default"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+            {/* Info column */}
+            <div className="flex flex-col gap-5">
+
+              {/* Description */}
+              <div className="rounded-2xl bg-white/[0.04] ring-1 ring-white/10 p-6 backdrop-blur-sm">
+                <p className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A] mb-3">
+                  Description
+                </p>
+                <p className="text-[15px] leading-relaxed text-[#D4D4DC]">
+                  {style.description || 'No description has been added for this style yet.'}
+                </p>
               </div>
-            )}
-            
-            {/* Client Component for Generation */}
-            <GenerateClient styleId={style.id} styleName={style.styleName} />
-            
+
+              {/* Tags */}
+              {style.tags && style.tags.length > 0 && (
+                <div className="rounded-2xl bg-white/[0.04] ring-1 ring-white/10 p-6 backdrop-blur-sm">
+                  <p className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A] mb-3">
+                    Tags
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {style.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="font-[family-name:var(--font-mono)] text-[12px] px-2.5 py-1 rounded-md bg-[#7C5CFF]/10 text-[#B7A8FF] ring-1 ring-[#7C5CFF]/25"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Generate */}
+              <div className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] ring-1 ring-white/10 p-6 flex-1">
+                <p className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A] mb-4">
+                  Generate
+                </p>
+                <GenerateClient styleId={style.id} styleName={style.styleName} />
+              </div>
+
+            </div>
           </div>
         </div>
       </main>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-\\[fadeIn_0\\.5s_ease-out_forwards\\] {
+            animation: none !important;
+            opacity: 1 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

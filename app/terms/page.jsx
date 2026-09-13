@@ -426,7 +426,7 @@ export default function TermsPage() {
               <p>For questions, complaints, payment issues, refund requests, or other concerns, please contact:</p>
               <div className="border-2 border-[#0E0E10] bg-white rounded-sm p-4 shadow-[3px_3px_0_#0E0E10] mt-2 not-prose">
                 <p className="mb-1"><strong className="text-[#0E0E10]">Business/Website Name:</strong> LibDesk</p>
-                <p className="mb-1"><strong className="text-[#0E0E10]">Email:</strong> hellobittukumar12@gmail.com</p>
+                <p className="mb-1"><strong className="text-[#0E0E10]">Email:</strong> support@libdesk.online@gmail.com</p>
                 <p className="mb-1"><strong className="text-[#0E0E10]">Phone:</strong> <span className="italic text-[#8A8677]">[PHONE NUMBER]</span></p>
                 <p><strong className="text-[#0E0E10]">Business Address:</strong> Ara, Bihar, India</p>
               </div>

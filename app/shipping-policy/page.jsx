@@ -160,7 +160,7 @@ export default function ShippingPolicyPage() {
             <Section num={6} id="delivery-problems" title="Delivery Problems">
               <p>If you have successfully completed a payment but do not receive your purchased credits, or if a successfully generated image does not appear in your account, please contact:</p>
               <div className="border-2 border-[#0E0E10] bg-white rounded-sm p-4 shadow-[3px_3px_0_#0E0E10] mt-2">
-                <p><strong className="text-[#0E0E10]">Email:</strong> hellobittukumar12@gmail.com</p>
+                <p><strong className="text-[#0E0E10]">Email:</strong> support@libdesk.online</p>
               </div>
               <p className="pt-2">Please provide your account email and transaction/order ID so that we can investigate the issue.</p>
             </Section>

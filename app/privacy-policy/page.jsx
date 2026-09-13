@@ -334,7 +334,7 @@ export default function PrivacyPolicyPage() {
 
             <Section num={11} id="deletion" title="Account Deletion">
               <p>You may request deletion of your account by contacting us at:</p>
-              <p>Email: hellobittukumar12@gmail.com</p>
+              <p>Email: support@libdesk.online</p>
               <p>When an account is deleted, we may delete or anonymize associated information where reasonably possible.</p>
               <p>Some information may need to be retained where required for legal compliance, fraud prevention, financial records, dispute resolution, or other legitimate purposes.</p>
             </Section>
@@ -361,8 +361,8 @@ export default function PrivacyPolicyPage() {
               <p>If you have questions, privacy requests, or complaints concerning your personal information, contact:</p>
               <div className="border-2 border-[#0E0E10] bg-white rounded-sm p-4 shadow-[3px_3px_0_#0E0E10] mt-2">
                 <p className="mb-1"><strong className="text-[#0E0E10]">Business/Website Name:</strong> LibDesk</p>
-                <p className="mb-1"><strong className="text-[#0E0E10]">Email:</strong> hellobittukumar12@gmail.com</p>
-                <p className="mb-1"><strong className="text-[#0E0E10]">Support Email:</strong> hellobittukumar12@gmail.com</p>
+                <p className="mb-1"><strong className="text-[#0E0E10]">Email:</strong> support@libdesk.online@gmail.com</p>
+                <p className="mb-1"><strong className="text-[#0E0E10]">Support Email:</strong> support@libdesk.online@gmail.com</p>
                 <p><strong className="text-[#0E0E10]">Business Address:</strong> Ara, Bihar, India</p>
               </div>
               <p>We will review and respond to privacy requests within the time required by applicable law.</p>

@@ -38,7 +38,7 @@ export default function Footer() {
                 <InstagramIcon className="w-4 h-4" />
               </a>
               <a
-                href="mailto:hellobittukumar12@gmail.com"
+                href="mailto:support@libdesk.online"
                 className="w-9 h-9 flex items-center justify-center border-2 border-white/20 hover:border-[#FFC93C] hover:text-[#FFC93C] transition-colors"
               >
                 <Mail className="w-4 h-4" />
@@ -51,7 +51,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-3.5 text-white/70 text-[14px]">
               <li className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 text-[#FFC93C] shrink-0 mt-0.5" strokeWidth={2} />
-                <a href="mailto:hellobittukumar12@gmail.com" className="hover:text-white transition-colors">hellobittukumar12@gmail.com</a>
+                <a href="mailto:support@libdesk.online" className="hover:text-white transition-colors">support@libdesk.online</a>
               </li>
               <li className="flex items-start gap-2.5">
                 <InstagramIcon className="w-4 h-4 text-[#FFC93C] shrink-0 mt-0.5" />

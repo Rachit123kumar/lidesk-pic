@@ -203,7 +203,7 @@ export default function RefundPolicyPage() {
             <Section num={11} id="assistance" title="How to Request Assistance">
               <p>To request a refund review or report a payment problem, contact:</p>
               <div className="border-2 border-[#0E0E10] bg-white rounded-sm p-4 shadow-[3px_3px_0_#0E0E10] mt-2">
-                <p><strong className="text-[#0E0E10]">Email:</strong> hellobittukumar12@gmail.com</p>
+                <p><strong className="text-[#0E0E10]">Email:</strong> support@libdesk.online@gmail.com</p>
               </div>
               <p className="pt-2">Please include:</p>
               <Bullets

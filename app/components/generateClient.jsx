@@ -74,23 +74,23 @@ export default function GenerateClient({ styleId, styleName }) {
   };
 
   return (
-    <div className="mt-auto flex flex-col gap-5 border-t-2 border-[#0E0E10] pt-6">
-      
+    <div className="flex flex-col gap-5">
+
       {/* File Upload Input */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-bold uppercase tracking-wider">
-          Upload Your Photo
+        <label className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A]">
+          Upload your photo
         </label>
         <input
           type="file"
           accept="image/jpeg, image/png, image/webp"
           onChange={(e) => setFile(e.target.files[0])}
           disabled={isProcessing}
-          className="w-full text-sm text-[#0E0E10] 
-            file:mr-4 file:py-2 file:px-4 
-            file:rounded-sm file:border-2 file:border-[#0E0E10] 
-            file:text-sm file:font-bold file:bg-[#FFC93C] file:text-[#0E0E10] 
-            hover:file:bg-[#e6b535] file:shadow-[2px_2px_0_#0E0E10]
+          className="w-full text-sm text-[#D4D4DC]
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border-0
+            file:text-sm file:font-medium file:bg-[#7C5CFF] file:text-white
+            hover:file:bg-[#6A4AE8]
             cursor-pointer file:cursor-pointer disabled:opacity-50"
         />
       </div>
@@ -98,47 +98,47 @@ export default function GenerateClient({ styleId, styleName }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Aspect Ratio Selector */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-bold uppercase tracking-wider">
-            Aspect Ratio
+          <label className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A]">
+            Aspect ratio
           </label>
           <select
             value={aspectRatio}
             onChange={(e) => setAspectRatio(e.target.value)}
             disabled={isProcessing}
-            className="w-full p-2 border-2 border-[#0E0E10] rounded-sm bg-white shadow-[2px_2px_0_#0E0E10] focus:outline-none focus:ring-0 font-medium text-sm"
+            className="w-full p-2.5 rounded-lg bg-[#17171F] text-[#F2F2F5] ring-1 ring-white/10 focus:outline-none focus:ring-1 focus:ring-[#7C5CFF] text-sm disabled:opacity-50"
           >
-            <option value="match_input_image">Original Image Size</option>
-            <option value="1:1">1:1 - Square (Instagram Post)</option>
-            <option value="9:16">9:16 - Vertical (Reels / Shorts / TikTok)</option>
-            <option value="16:9">16:9 - Widescreen (YouTube / Desktop)</option>
-            <option value="3:4">3:4 - Standard Portrait</option>
-            <option value="4:3">4:3 - Standard Landscape</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="match_input_image">Original Image Size</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="1:1">1:1 - Square (Instagram Post)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="9:16">9:16 - Vertical (Reels / Shorts / TikTok)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="16:9">16:9 - Widescreen (YouTube / Desktop)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="3:4">3:4 - Standard Portrait</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="4:3">4:3 - Standard Landscape</option>
           </select>
         </div>
 
         {/* Output Format Selector */}
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-bold uppercase tracking-wider">
+          <label className="font-[family-name:var(--font-mono)] text-[11px] uppercase tracking-wider text-[#8B8B9A]">
             Format
           </label>
           <select
             value={outputFormat}
             onChange={(e) => setOutputFormat(e.target.value)}
             disabled={isProcessing}
-            className="w-full p-2 border-2 border-[#0E0E10] rounded-sm bg-white shadow-[2px_2px_0_#0E0E10] focus:outline-none focus:ring-0 font-medium text-sm"
+            className="w-full p-2.5 rounded-lg bg-[#17171F] text-[#F2F2F5] ring-1 ring-white/10 focus:outline-none focus:ring-1 focus:ring-[#7C5CFF] text-sm disabled:opacity-50"
           >
-            <option value="webp">WebP (Best for Web)</option>
-            <option value="jpg">JPG (Standard)</option>
-            <option value="png">PNG (High Quality / Lossless)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="webp">WebP (Best for Web)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="jpg">JPG (Standard)</option>
+            <option className="bg-[#17171F] text-[#F2F2F5]" value="png">PNG (High Quality / Lossless)</option>
           </select>
         </div>
       </div>
 
       {/* Action Button */}
-      <button 
+      <button
         onClick={handleGenerate}
         disabled={isProcessing || !file}
-        className="border-2 border-[#0E0E10] bg-[#4B3AFF] text-white font-bold py-3 px-6 rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-1 active:shadow-[2px_2px_0_#0E0E10] transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#0E0E10] disabled:cursor-not-allowed flex justify-center"
+        className="bg-gradient-to-r from-[#7C5CFF] to-[#FF5CA8] text-white font-semibold py-3 px-6 rounded-lg shadow-[0_0_0_1px_rgba(255,255,255,0.1)] hover:shadow-[0_0_24px_-4px_rgba(124,92,255,0.6)] active:scale-[0.99] transition-all disabled:opacity-40 disabled:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.1)] disabled:cursor-not-allowed flex justify-center"
       >
         {isProcessing ? statusText : `Generate using ${styleName}`}
       </button>

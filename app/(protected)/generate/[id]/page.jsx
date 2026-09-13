@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
+import { Download, Loader2, ArrowRightLeft } from "lucide-react"; 
 // Adjust this import path based on your actual folder structure
 import Sidebar from "../../../components/SIdeBar"; 
 
@@ -12,6 +12,10 @@ export default function ActiveGenerationPage() {
   
   const [generation, setGeneration] = useState(null);
   const [error, setError] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  
+  // State to track which image is shown in the main view
+  const [showInputAsMain, setShowInputAsMain] = useState(false);
 
   useEffect(() => {
     if (!generationId) return;
@@ -41,15 +45,50 @@ export default function ActiveGenerationPage() {
       }
     };
 
-    // Initial check right away
     checkStatus();
-
-    // Poll every 3 seconds
     intervalId = setInterval(checkStatus, 3000);
-
-    // Cleanup interval on unmount
     return () => clearInterval(intervalId);
   }, [generationId]);
+
+  // --- Force Download Function using API Proxy ---
+  const handleDownload = async (imageUrl) => {
+    try {
+      setIsDownloading(true);
+      
+      // Use our new local API route to bypass CORS
+      const proxyUrl = `/api/download?url=${encodeURIComponent(imageUrl)}`;
+      const response = await fetch(proxyUrl);
+      
+      if (!response.ok) throw new Error("Download proxy failed");
+      
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      const filename = imageUrl.split('/').pop() || `generation-${generationId}.webp`;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      
+    } catch (error) {
+      console.error("Download failed, falling back to new tab:", error);
+      // Fallback if the proxy fails
+      window.open(imageUrl, "_blank");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Determine which image is main and which is the thumbnail
+  const mainImage = showInputAsMain ? generation?.inputImageUrl : generation?.outputImageUrl;
+  const thumbnailImage = showInputAsMain ? generation?.outputImageUrl : generation?.inputImageUrl;
+  const mainLabel = showInputAsMain ? "Input Image" : "Generated Output";
+  const thumbnailLabel = showInputAsMain ? "View Output" : "View Input";
 
   return (
     <div className="h-screen max-h-screen bg-[#FAFAF8] text-[#0E0E10] flex flex-col lg:flex-row overflow-hidden">
@@ -64,7 +103,6 @@ export default function ActiveGenerationPage() {
             Generation Status
           </h1>
           
-          {/* Status Badge */}
           {generation && (
             <span className={`text-xs sm:text-sm font-bold px-3 py-1 border-2 border-[#0E0E10] rounded-sm uppercase tracking-wider ${
               generation.status === 'succeeded' ? 'bg-green-400 text-black' :
@@ -110,27 +148,66 @@ export default function ActiveGenerationPage() {
 
           {/* Succeeded State */}
           {generation && generation.status === "succeeded" && generation.outputImageUrl && (
-            <div className="flex flex-col gap-6 w-full max-w-md">
-              <div className="border-2 border-[#0E0E10] rounded-sm shadow-[8px_8px_0_#0E0E10] overflow-hidden aspect-[4/5] bg-gray-100 relative group">
-                <Image 
-                  src={generation.outputImageUrl} 
-                  alt="Generated AI output" 
-                  fill
-                  className="object-cover"
-                  sizes="(max-w-md) 100vw, 400px"
-                  priority
-                />
+            <div className="flex flex-col items-center gap-6 w-full">
+              
+              {/* Image Container - Using relative positioning for the floating thumbnail */}
+              <div className="relative w-full max-w-[450px]">
+                
+                {/* Main Large Image */}
+                <div className="w-full border-2 border-[#0E0E10] rounded-sm shadow-[6px_6px_0_#0E0E10] bg-gray-100 flex flex-col items-center overflow-hidden transition-all duration-300">
+                  <div className="w-full bg-[#0E0E10] text-white text-xs font-bold uppercase py-1.5 px-3 tracking-wider text-center flex justify-between items-center">
+                    <span>{mainLabel}</span>
+                    {generation.model && <span className="text-gray-400 normal-case">{generation.model}</span>}
+                  </div>
+                  <img 
+                    src={mainImage} 
+                    alt="Main display" 
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+
+                {/* Floating Thumbnail (Only show if an input image exists) */}
+                {generation.inputImageUrl && thumbnailImage && (
+                  <button 
+                    onClick={() => setShowInputAsMain(!showInputAsMain)}
+                    className="absolute -bottom-4 -right-4 w-28 h-32 border-2 border-[#0E0E10] bg-white rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-0 active:translate-x-0 active:shadow-[2px_2px_0_#0E0E10] transition-all flex flex-col overflow-hidden z-10 group"
+                    title={`Swap to ${thumbnailLabel}`}
+                  >
+                    <div className="w-full bg-[#4B3AFF] text-white text-[10px] font-bold uppercase py-1 text-center flex items-center justify-center gap-1">
+                      <ArrowRightLeft size={10} strokeWidth={3} />
+                      {thumbnailLabel}
+                    </div>
+                    <img 
+                      src={thumbnailImage} 
+                      alt="Thumbnail view" 
+                      className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
+                    />
+                  </button>
+                )}
               </div>
               
-              <a 
-                href={generation.outputImageUrl}
-                download
-                target="_blank"
-                rel="noreferrer"
-                className="w-full text-center border-2 border-[#0E0E10] bg-[#4B3AFF] text-white font-bold py-4 px-6 rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-1 active:shadow-[2px_2px_0_#0E0E10] transition-all uppercase tracking-wider"
-              >
-                Download Image
-              </a>
+              {/* Actions Section */}
+              <div className="flex flex-col w-full max-w-[450px] gap-4 mt-6">
+                
+                <button 
+                  onClick={() => handleDownload(mainImage)}
+                  disabled={isDownloading}
+                  className="flex items-center justify-center gap-2 w-full text-center border-2 border-[#0E0E10] bg-[#4B3AFF] text-white font-bold py-3 px-4 rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-0.5 active:shadow-[2px_2px_0_#0E0E10] transition-all uppercase tracking-wider text-sm disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[4px_4px_0_#0E0E10]"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Downloading {showInputAsMain ? 'Input' : 'Output'}...
+                    </>
+                  ) : (
+                    <>
+                      <Download size={16} strokeWidth={2.5} />
+                      Download {showInputAsMain ? 'Input' : 'Output'} Image
+                    </>
+                  )}
+                </button>
+
+              </div>
             </div>
           )}
 
