@@ -62,14 +62,24 @@ export default function GenerateClient({ styleId, styleName }) {
       if (generateData.success) {
         setStatusText("Redirecting...");
         router.push(`/generate/${generateData.generationId}`);
-      } else {
-        throw new Error(generateData.error || "Generation failed");
+        return;
       }
+
+      if (generateRes.status === 402 || generateData.error === "Insufficient coins") {
+        alert("You don't have enough coins to generate this image.");
+        setIsProcessing(false);
+        setStatusText("");
+        return;
+      }
+
+      throw new Error(generateData.error || "Generation failed");
     } catch (error) {
-      console.error("Generation flow error:", error);
-      alert("Something went wrong. Please try again.");
-      setIsProcessing(false);
-      setStatusText("");
+     
+  console.error("Generation flow error:", error);
+  alert("Something went wrong. Please try again.");
+  setIsProcessing(false);
+  setStatusText("");
+
     }
   };
 
