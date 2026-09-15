@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from "next/image";
 import {
   Camera,
   Image as ImageIcon,
@@ -190,7 +191,16 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 flex items-center justify-center bg-[#0E0E10]">
-              <Camera className="w-4 h-4 text-[#FAFAF8]" strokeWidth={2} />
+              {/* <Camera className="w-4 h-4 text-[#FAFAF8]" strokeWidth={2} /> */}
+              <div className="rounded-lg">
+  <Image
+    src="/logo1.png"
+    alt="Libdesk"
+    width={24}
+    height={24}
+    className="rounded-lg"
+  />
+</div>
             </div>
             <span className="text-lg" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>LibDesk</span>
           </div>
@@ -450,92 +460,390 @@ export default function App() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="py-24 border-t-2 border-[#0E0E10] px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-14 max-w-xl">
-            <h2 className="text-3xl md:text-4xl mb-4" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-              Pricing
-            </h2>
-            <p className="text-[#4A473F] text-[16px] leading-relaxed">
-              Pay once, keep the results. No subscription.
-            </p>
-          </div>
+  
+<section id="pricing" className="py-24 border-t-2 border-[#0E0E10] px-6">
+  <div className="max-w-7xl mx-auto">
 
-          <div className="mb-14 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pb-8 border-b-2 border-[#0E0E10]">
-            <div className="flex items-center gap-2 text-[14px] font-semibold">
-              <Settings className="w-4 h-4 text-[#4B3AFF]" strokeWidth={2} />
-              <span>Output format</span>
-            </div>
-            <div className="flex gap-2">
-              {FORMATS.map((fmt) => (
-                <button
-                  key={fmt}
-                  onClick={() => setSelectedFormat(fmt)}
-                  className="px-4 py-2 text-[13px] font-bold border-2 border-[#0E0E10] transition-colors"
-                  style={{
-                    background: selectedFormat === fmt ? '#0E0E10' : '#FFFFFF',
-                    color: selectedFormat === fmt ? '#FFFFFF' : '#0E0E10',
-                  }}
-                >
-                  .{fmt}
-                </button>
-              ))}
-            </div>
-          </div>
+    {/* Heading */}
+    <div className="mb-14 max-w-xl">
+      <h2
+        className="text-3xl md:text-4xl mb-4"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontWeight: 700,
+        }}
+      >
+        Simple pricing. No subscription.
+      </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PRICING_PLANS.map((plan, idx) => (
-              <div
-                key={idx}
-                className="relative flex flex-col p-8 border-2 border-[#0E0E10]"
-                style={{
-                  background: plan.popular ? '#4B3AFF' : '#FFFFFF',
-                  color: plan.popular ? '#FFFFFF' : '#0E0E10',
-                  boxShadow: plan.popular ? '6px 6px 0 #0E0E10' : '4px 4px 0 #0E0E10',
-                }}
-              >
-                {plan.popular && (
-                  <span
-                    className="absolute -top-3 left-7 text-[11px] font-bold px-2.5 py-1 border-2 border-[#0E0E10]"
-                    style={{ background: '#FFC93C', color: '#0E0E10' }}
-                  >
-                    Most chosen
-                  </span>
-                )}
-                <h3 className="text-xl mb-1.5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>{plan.name}</h3>
-                <p className="text-[14px] mb-7 h-10" style={{ opacity: plan.popular ? 0.9 : 0.7 }}>{plan.description}</p>
-                <div className="mb-8">
-                  <span className="text-4xl" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>{plan.price}</span>
-                </div>
+      <p className="text-[#4A473F] text-[16px] leading-relaxed">
+        Buy credits once and use them whenever you need professional
+        headshots. No monthly commitment.
+      </p>
+    </div>
 
-                <ul className="flex flex-col gap-3.5 mb-8 flex-grow">
-                  {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-[14px]">
-                      <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" style={{ color: plan.popular ? '#FFC93C' : '#4B3AFF' }} strokeWidth={2} />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
+    {/* Output format */}
+    <div className="mb-14 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pb-8 border-b-2 border-[#0E0E10]">
+      <div className="flex items-center gap-2 text-[14px] font-semibold">
+        <Settings
+          className="w-4 h-4 text-[#4B3AFF]"
+          strokeWidth={2}
+        />
+        <span>Output format</span>
+      </div>
 
-                <button
-                  className="w-full py-3.5 font-bold border-2 border-[#0E0E10] transition-transform hover:-translate-y-0.5"
-                  style={{ background: '#0E0E10', color: '#FFFFFF' }}
-                >
-                  Choose {plan.name}
-                </button>
-              </div>
-            ))}
-          </div>
+      <div className="flex gap-2 flex-wrap">
+        {FORMATS.map((fmt) => (
+          <button
+            key={fmt}
+            onClick={() => setSelectedFormat(fmt)}
+            className="px-4 py-2 text-[13px] font-bold border-2 border-[#0E0E10] transition-all hover:-translate-y-0.5"
+            style={{
+              background:
+                selectedFormat === fmt ? '#0E0E10' : '#FFFFFF',
+              color:
+                selectedFormat === fmt ? '#FFFFFF' : '#0E0E10',
+            }}
+          >
+            .{fmt}
+          </button>
+        ))}
+      </div>
+    </div>
 
-          <div className="mt-10 flex items-center gap-3 text-[13px] text-[#4A473F]">
-            <ShieldCheck className="w-4 h-4 text-[#1FA774]" strokeWidth={2} />
-            <span>
-              Secure checkout via <span className="font-semibold text-[#0E0E10]">Stripe</span> or{' '}
-              <span className="font-semibold text-[#0E0E10]">UPI</span>. Card details are never stored.
-            </span>
-          </div>
+    {/* Pricing Cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
+
+      {/* Starter */}
+      <div
+        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
+        style={{
+          boxShadow: '4px 4px 0 #0E0E10',
+        }}
+      >
+        <div className="mb-7">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
+            Starter
+          </p>
+
+          <h3
+            className="text-2xl mb-2"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            10 Credits
+          </h3>
+
+          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
+            Perfect for trying out your first professional headshots.
+          </p>
         </div>
-      </section>
+
+        <div className="mb-8">
+          <span
+            className="text-4xl"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            ₹299
+          </span>
+          <span className="text-[13px] text-[#4A473F] ml-1">
+            one-time
+          </span>
+        </div>
+
+        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>10 AI headshot generations</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Multiple professional styles</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>High-quality output</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Credits never expire</span>
+          </li>
+        </ul>
+
+        <button
+          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+        >
+          Get 10 Credits
+        </button>
+      </div>
+
+      {/* Popular */}
+      <div
+        className="relative flex flex-col p-7 border-2 border-[#0E0E10]"
+        style={{
+          background: '#4B3AFF',
+          color: '#FFFFFF',
+          boxShadow: '6px 6px 0 #0E0E10',
+        }}
+      >
+        <span
+          className="absolute -top-3 left-6 text-[11px] font-bold px-2.5 py-1 border-2 border-[#0E0E10]"
+          style={{
+            background: '#FFC93C',
+            color: '#0E0E10',
+          }}
+        >
+          Most chosen
+        </span>
+
+        <div className="mb-7">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#FFC93C] mb-2">
+            Popular
+          </p>
+
+          <h3
+            className="text-2xl mb-2"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            25 Credits
+          </h3>
+
+          <p className="text-[14px] min-h-[42px] opacity-90">
+            A balanced pack for creating several looks and profiles.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <span
+            className="text-4xl"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            ₹599
+          </span>
+          <span className="text-[13px] ml-1 opacity-80">
+            one-time
+          </span>
+        </div>
+
+        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+            <span>25 AI headshot generations</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+            <span>All professional styles</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+            <span>High-quality output</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+            <span>Credits never expire</span>
+          </li>
+        </ul>
+
+        <button
+          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+        >
+          Get 25 Credits
+        </button>
+      </div>
+
+      {/* Pro */}
+      <div
+        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
+        style={{
+          boxShadow: '4px 4px 0 #0E0E10',
+        }}
+      >
+        <div className="mb-7">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
+            Pro
+          </p>
+
+          <h3
+            className="text-2xl mb-2"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            50 Credits
+          </h3>
+
+          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
+            Great for frequent profile, portfolio and career updates.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <span
+            className="text-4xl"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            ₹999
+          </span>
+          <span className="text-[13px] text-[#4A473F] ml-1">
+            one-time
+          </span>
+        </div>
+
+        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>50 AI headshot generations</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>All professional styles</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Priority generation access</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Credits never expire</span>
+          </li>
+        </ul>
+
+        <button
+          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+        >
+          Get 50 Credits
+        </button>
+      </div>
+
+      {/* Best Value */}
+      <div
+        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
+        style={{
+          boxShadow: '4px 4px 0 #0E0E10',
+        }}
+      >
+        <div className="mb-7">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
+            Best Value
+          </p>
+
+          <h3
+            className="text-2xl mb-2"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            100 Credits
+          </h3>
+
+          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
+            The best choice for heavy use and multiple projects.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <span
+            className="text-4xl"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+            }}
+          >
+            ₹1,799
+          </span>
+          <span className="text-[13px] text-[#4A473F] ml-1">
+            one-time
+          </span>
+        </div>
+
+        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>100 AI headshot generations</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>All professional styles</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Best price per generation</span>
+          </li>
+
+          <li className="flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+            <span>Credits never expire</span>
+          </li>
+        </ul>
+
+        <button
+          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+        >
+          Get 100 Credits
+        </button>
+      </div>
+
+    </div>
+
+    {/* Free credits + security */}
+    <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px] text-[#4A473F]">
+
+      <div className="flex items-center gap-3">
+        <CheckCircle2
+          className="w-4 h-4 text-[#1FA774]"
+          strokeWidth={2}
+        />
+        <span>
+          <span className="font-semibold text-[#0E0E10]">
+            5 free credits
+          </span>{' '}
+          included when you create an account.
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <ShieldCheck
+          className="w-4 h-4 text-[#1FA774]"
+          strokeWidth={2}
+        />
+        <span>
+          Secure checkout. Card details are never stored.
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
 
       {/* FOOTER */}
      <Footer/>

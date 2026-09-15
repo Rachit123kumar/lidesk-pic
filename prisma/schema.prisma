@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -18,12 +19,13 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  coins         Int @default(4)
+  coins Int @default(4)
 
-  accounts      Account[]
-  sessions      Session[]
-  generations   Generation[]
-  coinHistory   CoinTransaction[]
+  accounts    Account[]
+  sessions    Session[]
+  generations Generation[]
+  coinHistory CoinTransaction[]
+  payments    Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -69,26 +71,25 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-
 model Style {
-  id             String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  styleName      String
-  slug           String   @unique
+  styleName String
+  slug      String @unique
 
-  images         String[]
-  prompt         String
+  images String[]
+  prompt String
 
-  tags           String[]
-  description    String?
-  advice         String?
-  isActive       Boolean  @default(true)
+  tags        String[]
+  description String?
+  advice      String?
+  isActive    Boolean  @default(true)
 
-  generationCost Int      @default(1)
-  createdBy      String   @default("Admin")
+  generationCost Int    @default(1)
+  createdBy      String @default("Admin")
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([styleName])
 }
@@ -138,11 +139,56 @@ model CoinTransaction {
   generationId String?
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
+  paymentId    String?             @unique
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   generation Generation? @relation(fields: [generationId], references: [id], onDelete: SetNull)
 
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
   @@index([userId])
   @@index([generationId])
   @@index([createdAt])
+}
+
+enum PaymentStatus {
+  created
+  authorized
+  captured
+  failed
+  refunded
+  partially_refunded
+}
+
+enum PaymentProvider {
+  razorpay
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  userId            String
+  provider          PaymentProvider @default(razorpay)
+  providerPaymentId String?         @unique
+  providerOrderId   String          @unique
+
+  // plan
+  planId String
+  coins  Int
+
+  // Money
+  amount    Int
+  currency  String
+  status    PaymentStatus @default(created)
+  emailSent Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  coinTransaction CoinTransaction?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([provider])
 }
