@@ -1,21 +1,31 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 
-import { prisma } from "../../../../lib/prisma";
-import { creditPaymentCoins } from "../../../../lib/payment/creditPayment";
-import { sendPaymentSuccessEmail } from "../../../../lib/email/sendPaymentSuccessEmail";
+import { prisma } from "../../../../../lib/prisma";
+import { sendPaymentSuccessEmail } from "../../../../../lib/email/sendPaymentSuccessEmail";
 
 export async function POST(req) {
   try {
-    // Razorpay webhook signature must be generated
-    // from the RAW request body.
+    /*
+     * ==================================================
+     * 1. READ RAW BODY
+     * ==================================================
+     */
+
     const rawBody = await req.text();
 
-    const signature = req.headers.get("x-razorpay-signature");
-    const eventId = req.headers.get("x-razorpay-event-id");
+    const signature = req.headers.get(
+      "x-razorpay-signature"
+    );
+
+    const eventId = req.headers.get(
+      "x-razorpay-event-id"
+    );
 
     if (!signature) {
-      console.error("Razorpay webhook signature missing");
+      console.error(
+        "Razorpay webhook signature missing"
+      );
 
       return NextResponse.json(
         {
@@ -26,10 +36,13 @@ export async function POST(req) {
       );
     }
 
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const webhookSecret =
+      process.env.RAZORPAY_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      console.error("RAZORPAY_WEBHOOK_SECRET is missing");
+      console.error(
+        "RAZORPAY_WEBHOOK_SECRET is missing"
+      );
 
       return NextResponse.json(
         {
@@ -40,20 +53,37 @@ export async function POST(req) {
       );
     }
 
-    // Verify Razorpay webhook signature
+    /*
+     * ==================================================
+     * 2. VERIFY WEBHOOK SIGNATURE
+     * ==================================================
+     */
+
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
       .update(rawBody)
       .digest("hex");
 
-    const receivedBuffer = Buffer.from(signature, "utf8");
-    const expectedBuffer = Buffer.from(expectedSignature, "utf8");
+    const receivedBuffer = Buffer.from(
+      signature,
+      "utf8"
+    );
+
+    const expectedBuffer = Buffer.from(
+      expectedSignature,
+      "utf8"
+    );
 
     if (
       receivedBuffer.length !== expectedBuffer.length ||
-      !crypto.timingSafeEqual(receivedBuffer, expectedBuffer)
+      !crypto.timingSafeEqual(
+        receivedBuffer,
+        expectedBuffer
+      )
     ) {
-      console.error("Invalid Razorpay webhook signature");
+      console.error(
+        "Invalid Razorpay webhook signature"
+      );
 
       return NextResponse.json(
         {
@@ -64,7 +94,9 @@ export async function POST(req) {
       );
     }
 
-    // Parse only after signature verification
+    /*
+     * Parse only AFTER signature verification.
+     */
     const payload = JSON.parse(rawBody);
 
     const event = payload.event;
@@ -81,7 +113,8 @@ export async function POST(req) {
      */
 
     if (event === "payment.failed") {
-      const paymentEntity = payload?.payload?.payment?.entity;
+      const paymentEntity =
+        payload?.payload?.payment?.entity;
 
       if (!paymentEntity) {
         console.error(
@@ -97,16 +130,22 @@ export async function POST(req) {
         );
       }
 
-      const razorpayPaymentId = paymentEntity.id;
-      const razorpayOrderId = paymentEntity.order_id;
-      const razorpayAmount = paymentEntity.amount;
-      const razorpayCurrency = paymentEntity.currency;
+      const razorpayPaymentId =
+        paymentEntity.id;
 
-      if (!razorpayPaymentId || !razorpayOrderId) {
-        console.error(
-          "Payment ID or Order ID missing from failed payment"
-        );
+      const razorpayOrderId =
+        paymentEntity.order_id;
 
+      const razorpayAmount =
+        paymentEntity.amount;
+
+      const razorpayCurrency =
+        paymentEntity.currency;
+
+      if (
+        !razorpayPaymentId ||
+        !razorpayOrderId
+      ) {
         return NextResponse.json(
           {
             success: false,
@@ -116,33 +155,65 @@ export async function POST(req) {
         );
       }
 
-      const payment = await prisma.payment.findUnique({
-        where: {
-          providerOrderId: razorpayOrderId,
-        },
-      });
+      const payment =
+        await prisma.payment.findUnique({
+          where: {
+            providerOrderId:
+              razorpayOrderId,
+          },
+        });
 
       if (!payment) {
-        console.error("Payment record not found:", {
-          razorpayOrderId,
-          razorpayPaymentId,
-        });
-
-        return NextResponse.json(
+        console.error(
+          "Payment record not found:",
           {
-            success: false,
-            error: "Payment record not found",
-          },
-          { status: 404 }
+            razorpayOrderId,
+            razorpayPaymentId,
+          }
         );
+
+        /*
+         * Return 200 so Razorpay does not keep
+         * retrying an event that cannot be mapped.
+         *
+         * You can change this to 404 if you prefer
+         * Razorpay retries for investigation.
+         */
+        return NextResponse.json({
+          success: true,
+          message:
+            "Payment record not found",
+        });
       }
 
-      // Verify amount
-      if (razorpayAmount !== payment.amount) {
-        console.error("Failed payment amount mismatch:", {
-          databaseAmount: payment.amount,
-          razorpayAmount,
+      /*
+       * Never change an already-captured payment
+       * to failed because of an out-of-order webhook.
+       */
+      if (payment.status === "captured") {
+        return NextResponse.json({
+          success: true,
+          message:
+            "Payment already captured; ignoring failed event",
+          paymentId: payment.id,
+          status: "captured",
         });
+      }
+
+      /*
+       * Verify amount.
+       */
+      if (
+        razorpayAmount !== payment.amount
+      ) {
+        console.error(
+          "Failed payment amount mismatch:",
+          {
+            databaseAmount:
+              payment.amount,
+            razorpayAmount,
+          }
+        );
 
         return NextResponse.json(
           {
@@ -153,12 +224,21 @@ export async function POST(req) {
         );
       }
 
-      // Verify currency
-      if (razorpayCurrency !== payment.currency) {
-        console.error("Failed payment currency mismatch:", {
-          databaseCurrency: payment.currency,
-          razorpayCurrency,
-        });
+      /*
+       * Verify currency.
+       */
+      if (
+        razorpayCurrency !==
+        payment.currency
+      ) {
+        console.error(
+          "Failed payment currency mismatch:",
+          {
+            databaseCurrency:
+              payment.currency,
+            razorpayCurrency,
+          }
+        );
 
         return NextResponse.json(
           {
@@ -169,22 +249,33 @@ export async function POST(req) {
         );
       }
 
-      // Failed payment = NO coins
-      await prisma.payment.update({
+      /*
+       * Mark failed.
+       *
+       * No coins are credited.
+       */
+      await prisma.payment.updateMany({
         where: {
           id: payment.id,
+          status: {
+            not: "captured",
+          },
         },
         data: {
-          providerPaymentId: razorpayPaymentId,
+          providerPaymentId:
+            razorpayPaymentId,
           status: "failed",
         },
       });
 
-      console.log("Payment marked as failed:", {
-        paymentId: payment.id,
-        razorpayPaymentId,
-        razorpayOrderId,
-      });
+      console.log(
+        "Payment marked as failed:",
+        {
+          paymentId: payment.id,
+          razorpayPaymentId,
+          razorpayOrderId,
+        }
+      );
 
       return NextResponse.json({
         success: true,
@@ -201,7 +292,8 @@ export async function POST(req) {
      */
 
     if (event === "payment.captured") {
-      const paymentEntity = payload?.payload?.payment?.entity;
+      const paymentEntity =
+        payload?.payload?.payment?.entity;
 
       if (!paymentEntity) {
         console.error(
@@ -217,16 +309,22 @@ export async function POST(req) {
         );
       }
 
-      const razorpayPaymentId = paymentEntity.id;
-      const razorpayOrderId = paymentEntity.order_id;
-      const razorpayAmount = paymentEntity.amount;
-      const razorpayCurrency = paymentEntity.currency;
+      const razorpayPaymentId =
+        paymentEntity.id;
 
-      if (!razorpayPaymentId || !razorpayOrderId) {
-        console.error(
-          "Payment ID or Order ID missing from captured payment"
-        );
+      const razorpayOrderId =
+        paymentEntity.order_id;
 
+      const razorpayAmount =
+        paymentEntity.amount;
+
+      const razorpayCurrency =
+        paymentEntity.currency;
+
+      if (
+        !razorpayPaymentId ||
+        !razorpayOrderId
+      ) {
         return NextResponse.json(
           {
             success: false,
@@ -236,41 +334,61 @@ export async function POST(req) {
         );
       }
 
-      // Fetch payment + user + plan
-      const payment = await prisma.payment.findUnique({
-        where: {
-          providerOrderId: razorpayOrderId,
-        },
-        include: {
-          user: true,
-          plan: true,
-        },
-      });
+      /*
+       * Fetch payment with user + plan.
+       */
+      const payment =
+        await prisma.payment.findUnique({
+          where: {
+            providerOrderId:
+              razorpayOrderId,
+          },
+          include: {
+            user: true,
+            plan: true,
+          },
+        });
 
       if (!payment) {
-        console.error("Payment record not found:", {
-          razorpayOrderId,
-          razorpayPaymentId,
-        });
-
-        return NextResponse.json(
+        console.error(
+          "Payment record not found:",
           {
-            success: false,
-            error: "Payment record not found",
-          },
-          { status: 404 }
+            razorpayOrderId,
+            razorpayPaymentId,
+          }
         );
+
+        return NextResponse.json({
+          success: true,
+          message:
+            "Payment record not found",
+        });
       }
 
-      // Make sure payment ID matches if already present
+      /*
+       * ==================================================
+       * SECURITY CHECKS
+       * ==================================================
+       */
+
+      /*
+       * If we already have a payment ID,
+       * it MUST match.
+       */
       if (
         payment.providerPaymentId &&
-        payment.providerPaymentId !== razorpayPaymentId
+        payment.providerPaymentId !==
+          razorpayPaymentId
       ) {
-        console.error("Razorpay payment ID mismatch:", {
-          databasePaymentId: payment.providerPaymentId,
-          webhookPaymentId: razorpayPaymentId,
-        });
+        console.error(
+          "Razorpay payment ID mismatch:",
+          {
+            databasePaymentId:
+              payment.providerPaymentId,
+            webhookPaymentId:
+              razorpayPaymentId,
+          }
+        );
 
         return NextResponse.json(
           {
@@ -281,12 +399,20 @@ export async function POST(req) {
         );
       }
 
-      // Verify amount
-      if (razorpayAmount !== payment.amount) {
-        console.error("Payment amount mismatch:", {
-          databaseAmount: payment.amount,
-          razorpayAmount,
-        });
+      /*
+       * Verify amount.
+       */
+      if (
+        razorpayAmount !== payment.amount
+      ) {
+        console.error(
+          "Payment amount mismatch:",
+          {
+            databaseAmount:
+              payment.amount,
+            razorpayAmount,
+          }
+        );
 
         return NextResponse.json(
           {
@@ -297,12 +423,21 @@ export async function POST(req) {
         );
       }
 
-      // Verify currency
-      if (razorpayCurrency !== payment.currency) {
-        console.error("Payment currency mismatch:", {
-          databaseCurrency: payment.currency,
-          razorpayCurrency,
-        });
+      /*
+       * Verify currency.
+       */
+      if (
+        razorpayCurrency !==
+        payment.currency
+      ) {
+        console.error(
+          "Payment currency mismatch:",
+          {
+            databaseCurrency:
+              payment.currency,
+            razorpayCurrency,
+          }
+        );
 
         return NextResponse.json(
           {
@@ -315,46 +450,235 @@ export async function POST(req) {
 
       /*
        * ==================================================
-       * CREDIT COINS
+       * ATOMIC PAYMENT + COIN PROCESSING
        * ==================================================
+       *
+       * This is the critical protection.
+       *
+       * Multiple webhook requests can arrive at
+       * exactly the same time.
+       *
+       * Only the request that successfully changes
+       * the payment into "captured" gets to credit
+       * the coins.
        */
 
-      const creditResult = await creditPaymentCoins(payment.id);
+      const result =
+        await prisma.$transaction(
+          async (tx) => {
+            /*
+             * Re-read the payment INSIDE the transaction.
+             *
+             * This is important because the payment may
+             * have changed after our first query.
+             */
+            const currentPayment =
+              await tx.payment.findUnique({
+                where: {
+                  id: payment.id,
+                },
+              });
+
+            if (!currentPayment) {
+              throw new Error(
+                "Payment disappeared during transaction"
+              );
+            }
+
+            /*
+             * Already captured means this webhook
+             * is a duplicate.
+             */
+            if (
+              currentPayment.status ===
+              "captured"
+            ) {
+              return {
+                alreadyProcessed: true,
+                coins: currentPayment.coins,
+              };
+            }
+
+            /*
+             * Do not process refunded/failed payments
+             * as captured without investigation.
+             */
+            if (
+              currentPayment.status ===
+                "refunded" ||
+              currentPayment.status ===
+                "partially_refunded"
+            ) {
+              throw new Error(
+                `Payment has invalid status for capture: ${currentPayment.status}`
+              );
+            }
+
+            /*
+             * Make sure the provider payment ID
+             * is still compatible.
+             */
+            if (
+              currentPayment.providerPaymentId &&
+              currentPayment.providerPaymentId !==
+                razorpayPaymentId
+            ) {
+              throw new Error(
+                "Provider payment ID mismatch"
+              );
+            }
+
+            /*
+             * ------------------------------------------------
+             * Mark captured FIRST inside transaction
+             * ------------------------------------------------
+             */
+            await tx.payment.update({
+              where: {
+                id: currentPayment.id,
+              },
+              data: {
+                providerPaymentId:
+                  razorpayPaymentId,
+                status: "captured",
+              },
+            });
+
+            /*
+             * ------------------------------------------------
+             * Check whether coins already exist
+             * ------------------------------------------------
+             */
+            const existingTransaction =
+              await tx.coinTransaction.findUnique({
+                where: {
+                  paymentId:
+                    currentPayment.id,
+                },
+              });
+
+            if (existingTransaction) {
+              return {
+                alreadyProcessed: true,
+                coins: currentPayment.coins,
+              };
+            }
+
+            /*
+             * ------------------------------------------------
+             * Credit coins
+             * ------------------------------------------------
+             */
+            await tx.user.update({
+              where: {
+                id: currentPayment.userId,
+              },
+              data: {
+                coins: {
+                  increment:
+                    currentPayment.coins,
+                },
+              },
+            });
+
+            /*
+             * ------------------------------------------------
+             * Create credit transaction
+             * ------------------------------------------------
+             *
+             * paymentId is UNIQUE in your schema.
+             */
+            await tx.coinTransaction.create({
+              data: {
+                userId:
+                  currentPayment.userId,
+
+                amount:
+                  currentPayment.coins,
+
+                type: "credit",
+
+                description:
+                  `${currentPayment.coins} coins purchased - ${currentPayment.planId}`,
+
+                paymentId:
+                  currentPayment.id,
+              },
+            });
+
+            return {
+              alreadyProcessed: false,
+              coins: currentPayment.coins,
+            };
+          }
+        );
 
       /*
-       * ==================================================
-       * MARK PAYMENT AS CAPTURED
-       * ==================================================
+       * If duplicate webhook:
+       *
+       * No coin credit.
+       * No new CoinTransaction.
        */
+      if (result.alreadyProcessed) {
+        console.log(
+          "Duplicate captured webhook ignored:",
+          {
+            paymentId: payment.id,
+            razorpayPaymentId,
+          }
+        );
 
-      await prisma.payment.update({
-        where: {
-          id: payment.id,
-        },
-        data: {
-          providerPaymentId: razorpayPaymentId,
+        return NextResponse.json({
+          success: true,
+          message:
+            "Payment already processed",
+          paymentId: payment.id,
           status: "captured",
-        },
-      });
+          coins: result.coins,
+          alreadyProcessed: true,
+        });
+      }
 
       /*
        * ==================================================
-       * SEND SUCCESS EMAIL
+       * EMAIL
        * ==================================================
+       *
+       * We use an atomic claim so only ONE webhook
+       * request can send the email.
        */
 
-      let emailResult = null;
+      let emailSent = false;
 
-      if (!payment.emailSent) {
-        emailResult = await sendPaymentSuccessEmail({
-          email: payment.user.email,
-          name: payment.user.name,
-          planName: payment.plan.name,
-          coins: payment.coins,
-          amount: payment.amount,
-          currency: payment.currency,
-          paymentId: razorpayPaymentId,
+      const emailClaim =
+        await prisma.payment.updateMany({
+          where: {
+            id: payment.id,
+            emailSent: false,
+            emailSending: false,
+            status: "captured",
+          },
+          data: {
+            emailSending: true,
+          },
         });
+
+      if (emailClaim.count === 1) {
+        /*
+         * This webhook successfully claimed
+         * responsibility for sending the email.
+         */
+
+        const emailResult =
+          await sendPaymentSuccessEmail({
+            email: payment.user.email,
+            name: payment.user.name,
+            planName: payment.plan.name,
+            coins: payment.coins,
+            amount: payment.amount,
+            currency: payment.currency,
+            paymentId: razorpayPaymentId,
+          });
 
         if (emailResult.success) {
           await prisma.payment.update({
@@ -363,56 +687,104 @@ export async function POST(req) {
             },
             data: {
               emailSent: true,
+              emailSending: false,
             },
           });
 
-          console.log("Payment success email sent:", {
-            paymentId: payment.id,
-            email: payment.user.email,
-            emailId: emailResult.emailId,
-          });
+          emailSent = true;
+
+          console.log(
+            "Payment success email sent:",
+            {
+              paymentId: payment.id,
+              email: payment.user.email,
+              emailId:
+                emailResult.emailId,
+            }
+          );
         } else {
-          console.error("Payment succeeded but email failed:", {
-            paymentId: payment.id,
-            email: payment.user.email,
-            error: emailResult.error,
+          /*
+           * Email failed.
+           *
+           * Release the lock so a later webhook/retry
+           * can try again.
+           */
+          await prisma.payment.update({
+            where: {
+              id: payment.id,
+            },
+            data: {
+              emailSending: false,
+            },
           });
+
+          console.error(
+            "Payment succeeded but email failed:",
+            {
+              paymentId: payment.id,
+              email: payment.user.email,
+              error: emailResult.error,
+            }
+          );
         }
       } else {
-        console.log("Payment email already sent:", {
-          paymentId: payment.id,
-        });
+        /*
+         * Another webhook already sent the email
+         * or is currently sending it.
+         */
+        const latestPayment =
+          await prisma.payment.findUnique({
+            where: {
+              id: payment.id,
+            },
+            select: {
+              emailSent: true,
+            },
+          });
+
+        emailSent =
+          latestPayment?.emailSent ?? false;
+
+        console.log(
+          "Payment email already claimed/sent:",
+          {
+            paymentId: payment.id,
+            emailSent,
+          }
+        );
       }
 
       /*
        * ==================================================
-       * RESPONSE
+       * FINAL RESPONSE
        * ==================================================
        */
 
-      console.log("Payment captured and coins processed:", {
-        paymentId: payment.id,
-        razorpayPaymentId,
-        coins: creditResult.coins,
-        alreadyCredited: creditResult.alreadyCredited,
-        emailSent: payment.emailSent || emailResult?.success === true,
-      });
+      console.log(
+        "Payment captured successfully:",
+        {
+          paymentId: payment.id,
+          razorpayPaymentId,
+          coins: result.coins,
+          emailSent,
+        }
+      );
 
       return NextResponse.json({
         success: true,
-        message: "Payment captured successfully",
+        message:
+          "Payment captured successfully",
         paymentId: payment.id,
         status: "captured",
-        coins: creditResult.coins,
-        alreadyCredited: creditResult.alreadyCredited,
-        emailSent:
-          payment.emailSent || emailResult?.success === true,
+        coins: result.coins,
+        alreadyProcessed: false,
+        emailSent,
       });
     }
 
     /*
      * ==================================================
-     * OTHER RAZORPAY EVENTS
+     * OTHER EVENTS
      * ==================================================
      */
 
@@ -422,7 +794,10 @@ export async function POST(req) {
       event,
     });
   } catch (error) {
-    console.error("Razorpay webhook error:", error);
+    console.error(
+      "Razorpay webhook error:",
+      error
+    );
 
     return NextResponse.json(
       {

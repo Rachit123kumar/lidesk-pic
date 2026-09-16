@@ -4,11 +4,9 @@ import { NextResponse } from "next/server";
 
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { prisma } from "../../../../lib/prisma";
-import { creditPaymentCoins } from "../../../../lib/payment/creditPayment";
 
 export async function POST(req) {
   try {
-    // 1. Check logged-in user
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -21,7 +19,6 @@ export async function POST(req) {
       );
     }
 
-    // 2. Get payment details from frontend
     const body = await req.json();
 
     const {
@@ -44,7 +41,6 @@ export async function POST(req) {
       );
     }
 
-    // 3. Find the logged-in user
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email,
@@ -64,7 +60,6 @@ export async function POST(req) {
       );
     }
 
-    // 4. Find our payment record
     const payment = await prisma.payment.findUnique({
       where: {
         providerOrderId: razorpay_order_id,
@@ -81,7 +76,7 @@ export async function POST(req) {
       );
     }
 
-    // 5. Make sure this payment belongs to this user
+    // Make sure this payment belongs to the logged-in user.
     if (payment.userId !== user.id) {
       return NextResponse.json(
         {
@@ -92,7 +87,6 @@ export async function POST(req) {
       );
     }
 
-    // 6. Verify Razorpay signature
     const secret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!secret) {
@@ -107,12 +101,31 @@ export async function POST(req) {
       );
     }
 
+    /*
+     * Verify Razorpay checkout signature.
+     */
     const generatedSignature = crypto
       .createHmac("sha256", secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    if (generatedSignature !== razorpay_signature) {
+    const receivedBuffer = Buffer.from(
+      razorpay_signature,
+      "utf8"
+    );
+
+    const expectedBuffer = Buffer.from(
+      generatedSignature,
+      "utf8"
+    );
+
+    if (
+      receivedBuffer.length !== expectedBuffer.length ||
+      !crypto.timingSafeEqual(
+        receivedBuffer,
+        expectedBuffer
+      )
+    ) {
       console.error("Invalid Razorpay payment signature");
 
       return NextResponse.json(
@@ -124,10 +137,30 @@ export async function POST(req) {
       );
     }
 
-    // 7. Save Razorpay payment ID and mark payment as authorized
-    await prisma.payment.update({
+    /*
+     * Important:
+     *
+     * Never allow browser verification to overwrite
+     * a payment that has already been captured by webhook.
+     *
+     * If webhook wins the race:
+     *
+     *     captured → stays captured
+     *
+     * If verify wins first:
+     *
+     *     created → authorized
+     *
+     * Later webhook:
+     *
+     *     authorized → captured
+     */
+    const updated = await prisma.payment.updateMany({
       where: {
         id: payment.id,
+        status: {
+          not: "captured",
+        },
       },
       data: {
         providerPaymentId: razorpay_payment_id,
@@ -135,14 +168,42 @@ export async function POST(req) {
       },
     });
 
-    // 8. Credit coins exactly once
-    // const creditResult = await creditPaymentCoins(payment.id);
+    /*
+     * If updated.count === 0, the payment was probably
+     * already captured by the webhook.
+     */
+    if (updated.count === 0) {
+      const latestPayment = await prisma.payment.findUnique({
+        where: {
+          id: payment.id,
+        },
+        select: {
+          id: true,
+          status: true,
+          providerPaymentId: true,
+        },
+      });
 
-    // 9. Return success
+      if (latestPayment?.status === "captured") {
+        return NextResponse.json({
+          success: true,
+          message: "Payment already captured",
+          paymentId: latestPayment.id,
+          status: "captured",
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Payment already processed",
+        paymentId: payment.id,
+        status: latestPayment?.status ?? payment.status,
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      message:"payment verified sucessfully",
-
+      message: "Payment verified successfully",
       paymentId: payment.id,
       status: "authorized",
     });
