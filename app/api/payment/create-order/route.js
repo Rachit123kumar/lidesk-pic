@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../api/auth/[...nextauth]/route";
@@ -75,16 +76,7 @@ export async function POST(req) {
       );
     }
 
-    console.log("Razorpay config:", {
-  keyId: process.env.RAZORPAY_KEY_ID,
-  secretLoaded: !!process.env.RAZORPAY_KEY_SECRET,
-  keyMode: process.env.RAZORPAY_KEY_ID?.startsWith("rzp_test_")
-    ? "TEST"
-    : process.env.RAZORPAY_KEY_ID?.startsWith("rzp_live_")
-    ? "LIVE"
-    : "UNKNOWN",
-});
-    // 6. Create Razorpay order
+    // 6. Create LIVE Razorpay order
     const razorpayOrder = await razorpay.orders.create({
       amount: plan.price,
       currency: plan.currency,
@@ -131,7 +123,7 @@ export async function POST(req) {
       },
     });
   } catch (error) {
-    console.error("Create Razorpay order error:", error);
+    console.error("Create Razorpay LIVE order error:", error);
 
     return NextResponse.json(
       {
@@ -141,3 +133,4 @@ export async function POST(req) {
     );
   }
 }
+
