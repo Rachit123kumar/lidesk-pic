@@ -1,8 +1,9 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 
-import { prisma } from "../../../../../lib/prisma";
-import { sendPaymentSuccessEmail } from "../../../../../lib/email/sendPaymentSuccessEmail";
+
+import {prisma} from "../../../../lib/prisma"
+import { sendPaymentSuccessEmail } from "../../../../lib/email/sendPaymentSuccessEmail";
 
 export async function POST(req) {
   try {
