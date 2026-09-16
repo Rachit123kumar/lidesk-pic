@@ -1,9 +1,6 @@
 import Link from 'next/link';
 import Sidebar from '../../components/SIdeBar';
-import {
-  Bell,
-  Coins
-} from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { prisma } from '../../../lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../api/auth/[...nextauth]/route';
@@ -16,16 +13,18 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // OPTIMIZATION: Only fetch the coins to save bandwidth
+  // OPTIMIZATION: Only fetch the required fields
   const userData = await prisma.user.findUnique({
     where: {
       id: session.user.id
     },
     select: {
-      coins: true
+      coins: true,
+      name: true, // Fixed syntax here
+      image: true // Fixed syntax here
     }
   });
-
+console.log(userData)
   const styles = await prisma.style.findMany({
     orderBy: {
       createdAt: 'desc',
@@ -40,13 +39,14 @@ export default async function DashboardPage() {
       <main className="flex-1 flex flex-col h-full pt-14 lg:pt-0 w-full relative">
         
         {/* Neo-brutalist Header */}
+      {/* Neo-brutalist Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 border-b-2 border-[#0E0E10] bg-[#FAFAF8] z-10">
           <h1 className="text-xl md:text-2xl font-bold font-['Space_Grotesk',_sans-serif]">
             Styles
           </h1>
 
           <div className="flex items-center gap-4">
-            {/* Coin Display matching the neo-brutalism theme */}
+            {/* Coin Display */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FFD93D] border-2 border-[#0E0E10] rounded-md shadow-[2px_2px_0_#0E0E10] transition-transform hover:-translate-y-0.5">
               <Coins size={16} strokeWidth={2.5} className="text-[#0E0E10]" />
               <span className="font-bold text-sm md:text-base">
@@ -54,14 +54,14 @@ export default async function DashboardPage() {
               </span>
             </div>
 
-            {/* Notification Bell */}
-            <button
-              className="w-9 h-9 flex items-center justify-center bg-white border-2 border-[#0E0E10] rounded-md transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[2px_2px_0_#0E0E10] active:translate-y-0.5 active:shadow-none relative shrink-0"
-              aria-label="Notifications"
-            >
-              <Bell strokeWidth={2.5} size={16} className="text-[#0E0E10]" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FF4D6D] border-2 border-[#0E0E10]" />
-            </button>
+            {/* User Profile Image (Only renders if the image exists) */}
+            {userData?.image && (
+              <img 
+                src={userData.image} 
+                alt={userData.name || "User profile"} 
+                className="w-9 h-9 border-2 border-[#0E0E10] rounded-md object-cover shadow-[2px_2px_0_#0E0E10] shrink-0"
+              />
+            )}
           </div>
         </div>
 

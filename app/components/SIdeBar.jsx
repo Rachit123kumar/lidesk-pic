@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   Coins,
+
   Menu,
   X,
   ChevronLeft,
@@ -31,8 +32,8 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Generate images', icon: ImageIcon, href: '/dashboard' },
     { name: 'History', icon: History, href: '/history' },
-    { name: 'Payments', icon: CreditCard, href: '/payment' },
-    // { name: 'Membership', icon: User, href: '/membership' },
+    { name: 'Buy coins', icon: CreditCard, href: '/payment' },
+    { name: 'credits', icon: Coins, href: '/credits' },
     // { name: 'Settings', icon: Settings, href: '/setting' },
   ];
 

@@ -186,9 +186,26 @@ model Payment {
   coinTransaction CoinTransaction?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id])
 
   @@index([userId])
   @@index([status])
   @@index([createdAt])
   @@index([provider])
+}
+
+model Plan {
+  id                   String  @id @default(cuid())
+  name                 String
+  coins                Int
+  description          String?
+  availableForCommerce Boolean @default(true)
+  customRatio          Boolean @default(false)
+  canDownload          Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  payments  Payment[]
+  price     Int
+  currency  String    @default("INR")
 }
