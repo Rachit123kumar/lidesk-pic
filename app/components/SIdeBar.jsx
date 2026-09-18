@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation'; // 1. Import usePathname
+import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
   ImageIcon,
@@ -12,7 +12,6 @@ import {
   Settings,
   LogOut,
   Coins,
-
   Menu,
   X,
   ChevronLeft,
@@ -25,10 +24,8 @@ export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  // 2. Initialize the hook to get the current URL path
   const pathname = usePathname(); 
 
-  // 3. Removed the hardcoded 'active' property since we calculate it dynamically now
   const navItems = [
     { name: 'Generate images', icon: ImageIcon, href: '/dashboard' },
     { name: 'History', icon: History, href: '/history' },
@@ -41,9 +38,9 @@ export default function Sidebar() {
     <>
       {/* Mobile Top Navigation Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#FAFAF8] border-b-2 border-[#0E0E10] px-4 flex justify-between items-center z-40">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center bg-[#0E0E10] rounded-sm">
-                <div className="rounded-lg">
+            <div className="rounded-lg">
               <Image
                 src="/logo1.png"
                 alt="Libdesk"
@@ -56,7 +53,7 @@ export default function Sidebar() {
           <span className="font-bold font-['Space_Grotesk',_sans-serif] text-lg text-[#0E0E10]">
             LibDesk
           </span>
-        </div>
+        </Link>
         <button
           onClick={() => setIsMobileMenuOpen(true)}
           className="p-2 bg-white border-2 border-[#0E0E10] rounded-sm transition-all active:translate-y-0.5 shadow-[2px_2px_0_#0E0E10] active:shadow-none"
@@ -73,31 +70,31 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Changed h-screen to h-[100dvh] for perfect mobile sizing */}
       <aside
-        className={`fixed lg:static top-0 left-0 h-screen max-h-screen bg-[#FAFAF8] border-r-2 border-[#0E0E10] flex flex-col font-['Inter',_sans-serif] z-50 transition-all duration-300 ease-in-out overflow-x-hidden
+        className={`fixed lg:static top-0 left-0 h-[100dvh] bg-[#FAFAF8] border-r-2 border-[#0E0E10] flex flex-col font-['Inter',_sans-serif] z-50 transition-all duration-300 ease-in-out overflow-x-hidden
           ${isCollapsed ? 'lg:w-[84px]' : 'lg:w-64'}
           ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Mobile Drawer Header */}
         <div className="flex lg:hidden items-center justify-between p-4 border-b-2 border-[#0E0E10] mb-4">
-          <div className="flex items-center gap-2">
+          <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2">
             <div className="w-7 h-7 flex items-center justify-center bg-[#0E0E10] rounded-sm shrink-0">
-             <div className="rounded-lg">
-           <Image
-             src="/logo1.png"
-             alt="Libdesk"
-             width={24}
-             height={24}
-             className="rounded-lg"
-           />
-         </div>
+              <div className="rounded-lg">
+                <Image
+                  src="/logo1.png"
+                  alt="Libdesk"
+                  width={24}
+                  height={24}
+                  className="rounded-lg"
+                />
+              </div>
             </div>
             <span className="font-bold font-['Space_Grotesk',_sans-serif] text-base text-[#0E0E10]">
               LibDesk
             </span>
-          </div>
+          </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
             className="p-1.5 bg-white border-2 border-[#0E0E10] rounded-sm transition-all active:translate-y-0.5 shadow-[2px_2px_0_#0E0E10] active:shadow-none"
@@ -108,26 +105,27 @@ export default function Sidebar() {
 
         {/* Desktop Logo and Collapse Toggle Row */}
         <div className="hidden lg:flex items-center justify-between p-5 mb-2 min-h-[32px]">
-          <div 
+          <Link 
+            href="/"
             className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${
               isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[150px] opacity-100'
             }`}
           >
             <div className="w-7 h-7 flex items-center justify-center bg-[#0E0E10] rounded-sm shrink-0">
-                 <div className="rounded-lg">
-               <Image
-                 src="/logo1.png"
-                 alt="Libdesk"
-                 width={24}
-                 height={24}
-                 className="rounded-lg"
-               />
-             </div>
+              <div className="rounded-lg">
+                <Image
+                  src="/logo1.png"
+                  alt="Libdesk"
+                  width={24}
+                  height={24}
+                  className="rounded-lg"
+                />
+              </div>
             </div>
             <span className="font-bold font-['Space_Grotesk',_sans-serif] text-base text-[#0E0E10] whitespace-nowrap pl-2.5">
               LibDesk
             </span>
-          </div>
+          </Link>
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -141,8 +139,6 @@ export default function Sidebar() {
         {/* Navigation Links */}
         <nav className="flex-1 space-y-2.5 overflow-y-auto overflow-x-hidden px-4 lg:px-5">
           {navItems.map((item) => {
-            // 4. Calculate if this route is currently active
-            // Using .startsWith() ensures sub-pages (e.g., /history/123) keep the parent highlighted
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
             
             return (
@@ -168,8 +164,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Bottom Actions */}
-        <div className="space-y-2.5 mt-6 p-4 lg:p-5 border-t-2 border-[#0E0E10] overflow-x-hidden">
+        {/* Bottom Actions - Changed mt-6 to mt-auto to anchor it properly */}
+        <div className="mt-auto p-4 lg:p-5 border-t-2 border-[#0E0E10] overflow-x-hidden bg-[#FAFAF8] z-10 shrink-0">
           <button 
             onClick={() => signOut({ callbackUrl: '/' })} 
             className="w-full flex items-center p-2.5 bg-white border-2 border-[#0E0E10] rounded-sm font-semibold text-sm text-[#0E0E10] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#0E0E10] active:translate-y-0.5 active:shadow-none shadow-[3px_3px_0_#0E0E10]"
