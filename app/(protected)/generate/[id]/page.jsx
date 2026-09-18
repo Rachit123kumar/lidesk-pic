@@ -1,20 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Download, Loader2, ArrowRightLeft } from "lucide-react"; 
-// Adjust this import path based on your actual folder structure
+import { useParams, useRouter } from "next/navigation";
+import { Download, Loader2, ArrowRightLeft, Image as ImageIcon, AlertCircle, Sparkles, ArrowLeft } from "lucide-react"; 
 import Sidebar from "../../../components/SIdeBar"; 
+import FeedbackLine from "../../../components/FeedbackLine"; 
 
 export default function ActiveGenerationPage() {
   const params = useParams();
+  const router = useRouter(); 
   const generationId = params.id;
   
   const [generation, setGeneration] = useState(null);
   const [error, setError] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   
-  // State to track which image is shown in the main view
   const [showInputAsMain, setShowInputAsMain] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,6 @@ export default function ActiveGenerationPage() {
         if (result.success) {
           setGeneration(result.data);
 
-          // Stop polling if we hit a final state
           const finalStates = ["succeeded", "failed", "canceled"];
           if (finalStates.includes(result.data.status)) {
             clearInterval(intervalId);
@@ -50,12 +49,10 @@ export default function ActiveGenerationPage() {
     return () => clearInterval(intervalId);
   }, [generationId]);
 
-  // --- Force Download Function using API Proxy ---
   const handleDownload = async (imageUrl) => {
     try {
       setIsDownloading(true);
       
-      // Use our new local API route to bypass CORS
       const proxyUrl = `/api/download?url=${encodeURIComponent(imageUrl)}`;
       const response = await fetch(proxyUrl);
       
@@ -77,155 +74,177 @@ export default function ActiveGenerationPage() {
       
     } catch (error) {
       console.error("Download failed, falling back to new tab:", error);
-      // Fallback if the proxy fails
       window.open(imageUrl, "_blank");
     } finally {
       setIsDownloading(false);
     }
   };
 
-  // Determine which image is main and which is the thumbnail
   const mainImage = showInputAsMain ? generation?.inputImageUrl : generation?.outputImageUrl;
   const thumbnailImage = showInputAsMain ? generation?.outputImageUrl : generation?.inputImageUrl;
-  const mainLabel = showInputAsMain ? "Input Image" : "Generated Output";
-  const thumbnailLabel = showInputAsMain ? "View Output" : "View Input";
+  const mainLabel = showInputAsMain ? "Original Input" : "Generated Artwork";
+  const thumbnailLabel = showInputAsMain ? "View Result" : "View Input";
 
   return (
-    <div className="h-screen max-h-screen bg-[#FAFAF8] text-[#0E0E10] flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen max-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col lg:flex-row overflow-hidden antialiased selection:bg-indigo-100 dark:selection:bg-indigo-900/50 selection:text-indigo-900 dark:selection:text-indigo-200">
       <Sidebar />
 
-      {/* Main content area */}
-      <main className="flex-1 flex flex-col h-full pt-14 lg:pt-0 w-full relative font-['Inter',_sans-serif] overflow-y-auto">
+      {/* Grid Background adapted for Light & Dark */}
+      <main className="flex-1 flex flex-col h-full pt-14 lg:pt-0 w-full relative font-sans overflow-y-auto bg-slate-50 dark:bg-slate-950 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 border-b-2 border-[#0E0E10] bg-white sticky top-0 z-10">
-          <h1 className="text-xl sm:text-2xl font-bold font-['Space_Grotesk',_sans-serif] capitalize">
-            Generation Status
-          </h1>
+        {/* Glassmorphic Header */}
+        <div className="flex items-center justify-between px-6 md:px-10 py-5 border-b border-slate-200/60 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 backdrop-blur-xl sticky top-0 z-20">
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors active:scale-95"
+              aria-label="Go back"
+              title="Go back"
+            >
+              <ArrowLeft size={20} strokeWidth={2.5} />
+            </button>
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+              Workspace
+            </h1>
+          </div>
           
           {generation && (
-            <span className={`text-xs sm:text-sm font-bold px-3 py-1 border-2 border-[#0E0E10] rounded-sm uppercase tracking-wider ${
-              generation.status === 'succeeded' ? 'bg-green-400 text-black' :
-              generation.status === 'failed' ? 'bg-red-500 text-white' :
-              'bg-[#FFC93C] text-black animate-pulse'
+            <span className={`text-xs font-medium px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-colors ${
+              generation.status === 'succeeded' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20' :
+              generation.status === 'failed' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20' :
+              'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 animate-pulse'
             }`}>
-              {generation.status}
+              {generation.status === 'starting' || generation.status === 'processing' ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                <div className={`w-1.5 h-1.5 rounded-full ${generation.status === 'succeeded' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+              )}
+              <span className="capitalize tracking-wide">{generation.status}</span>
             </span>
           )}
         </div>
 
         {/* Page Content area */}
-        <div className="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto w-full flex flex-col items-center justify-center min-h-[70vh]">
+        <div className="p-6 md:p-10 max-w-5xl mx-auto w-full flex flex-col items-center min-h-[70vh]">
           
-          {/* Error State */}
           {error && (
-            <div className="border-2 border-[#0E0E10] bg-red-100 p-6 shadow-[5px_5px_0_#0E0E10] w-full text-center mb-6">
-              <h2 className="text-xl font-bold text-red-600 uppercase mb-2">Error</h2>
-              <p className="font-medium text-[#0E0E10]">{error}</p>
+            <div className="bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 p-8 rounded-2xl w-full max-w-md text-center my-auto flex flex-col items-center gap-3">
+              <AlertCircle className="w-10 h-10 text-rose-500 dark:text-rose-400 mb-2" />
+              <h2 className="text-lg font-semibold text-rose-800 dark:text-rose-300">Something went wrong</h2>
+              <p className="text-sm text-rose-600/80 dark:text-rose-400/80">{error}</p>
             </div>
           )}
 
-          {/* Loading / Initial State */}
           {!generation && !error && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-[#0E0E10] border-t-[#4B3AFF] rounded-full animate-spin"></div>
-              <p className="font-bold uppercase tracking-wider text-sm">Loading details...</p>
+            <div className="flex flex-col items-center justify-center gap-5 my-auto text-slate-400 dark:text-slate-500">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-400 dark:text-indigo-500" />
+              <p className="font-medium text-sm tracking-wide">Retrieving assets...</p>
             </div>
           )}
 
-          {/* Processing / Starting State */}
           {generation && ["starting", "processing"].includes(generation.status) && (
-            <div className="border-4 border-dashed border-[#0E0E10] rounded-sm bg-white p-8 w-full max-w-md aspect-square flex flex-col items-center justify-center gap-6 shadow-[5px_5px_0_#0E0E10] animate-pulse">
-              <div className="w-16 h-16 bg-[#4B3AFF] border-2 border-[#0E0E10] shadow-[2px_2px_0_#0E0E10] animate-bounce"></div>
-              <p className="text-lg font-bold font-['Space_Grotesk',_sans-serif] text-center">
-                Applying Style...<br/>
-                <span className="text-sm text-gray-500 font-['Inter',_sans-serif] normal-case mt-2 block">
-                  This usually takes 10-20 seconds
-                </span>
-              </p>
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-100 dark:border-slate-800 rounded-3xl p-10 w-full max-w-md aspect-square flex flex-col items-center justify-center gap-6 shadow-xl shadow-slate-200/40 dark:shadow-black/40 my-auto">
+              <div className="relative flex items-center justify-center w-20 h-20">
+                <div className="absolute inset-0 border-4 border-indigo-100 dark:border-indigo-900/50 rounded-full animate-ping opacity-75"></div>
+                <div className="absolute inset-0 border-4 border-t-indigo-500 border-indigo-50 dark:border-indigo-900 rounded-full animate-spin"></div>
+                <Sparkles className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white tracking-tight">Crafting your vision</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">This magic usually takes 10-20 seconds.</p>
+              </div>
             </div>
           )}
 
-          {/* Succeeded State */}
           {generation && generation.status === "succeeded" && generation.outputImageUrl && (
-            <div className="flex flex-col items-center gap-6 w-full">
+            <div className="flex flex-col items-center gap-8 w-full my-auto animate-in fade-in zoom-in duration-500 ease-out">
               
-              {/* Image Container - Using relative positioning for the floating thumbnail */}
-              <div className="relative w-full max-w-[450px]">
-                
-                {/* Main Large Image */}
-                <div className="w-full border-2 border-[#0E0E10] rounded-sm shadow-[6px_6px_0_#0E0E10] bg-gray-100 flex flex-col items-center overflow-hidden transition-all duration-300">
-                  <div className="w-full bg-[#0E0E10] text-white text-xs font-bold uppercase py-1.5 px-3 tracking-wider text-center flex justify-between items-center">
-                    <span>{mainLabel}</span>
-                    {generation.model && <span className="text-gray-400 normal-case">{generation.model}</span>}
-                  </div>
-                  <img 
-                    src={mainImage} 
-                    alt="Main display" 
-                    className="w-full h-auto object-contain"
-                  />
+              <div className="relative flex justify-center max-w-[500px] w-full group">
+                <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                  <span className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 text-xs font-semibold py-1.5 px-3.5 rounded-full shadow-sm border border-white/50 dark:border-slate-700/50 flex items-center gap-1.5">
+                    <ImageIcon size={12} className="text-slate-500 dark:text-slate-400" />
+                    {mainLabel}
+                  </span>
                 </div>
+                
+                <img 
+                  src={mainImage} 
+                  alt="Main display" 
+                  className="max-w-full h-auto max-h-[65vh] object-contain rounded-[24px] shadow-2xl shadow-slate-300/60 dark:shadow-black/60 transition-transform duration-700 group-hover:scale-[1.01] bg-slate-100 dark:bg-slate-800"
+                />
 
-                {/* Floating Thumbnail (Only show if an input image exists) */}
                 {generation.inputImageUrl && thumbnailImage && (
                   <button 
                     onClick={() => setShowInputAsMain(!showInputAsMain)}
-                    className="absolute -bottom-4 -right-4 w-28 h-32 border-2 border-[#0E0E10] bg-white rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-0 active:translate-x-0 active:shadow-[2px_2px_0_#0E0E10] transition-all flex flex-col overflow-hidden z-10 group"
+                    className="absolute -bottom-5 -right-5 w-32 h-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1.5 rounded-2xl shadow-xl shadow-slate-300/60 dark:shadow-black/60 border border-white/60 dark:border-slate-700/60 hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col z-20 group/thumb overflow-hidden"
                     title={`Swap to ${thumbnailLabel}`}
                   >
-                    <div className="w-full bg-[#4B3AFF] text-white text-[10px] font-bold uppercase py-1 text-center flex items-center justify-center gap-1">
-                      <ArrowRightLeft size={10} strokeWidth={3} />
-                      {thumbnailLabel}
+                    <div className="w-full h-full rounded-xl overflow-hidden relative">
+                      <div className="absolute inset-0 bg-slate-900/40 dark:bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
+                        <ArrowRightLeft className="text-white drop-shadow-md" size={20} />
+                      </div>
+                      <img 
+                        src={thumbnailImage} 
+                        alt="Thumbnail view" 
+                        className="w-full h-full object-cover bg-slate-200 dark:bg-slate-800"
+                      />
                     </div>
-                    <img 
-                      src={thumbnailImage} 
-                      alt="Thumbnail view" 
-                      className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
-                    />
+                    <div className="absolute -bottom-2 inset-x-0 flex justify-center opacity-0 group-hover/thumb:opacity-100 group-hover/thumb:bottom-2 transition-all duration-300 z-20">
+                      <span className="bg-slate-900/80 dark:bg-black/80 backdrop-blur-sm text-white text-[9px] font-medium py-1 px-2.5 rounded-full border border-slate-700/50">
+                        {thumbnailLabel}
+                      </span>
+                    </div>
                   </button>
                 )}
               </div>
               
-              {/* Actions Section */}
-              <div className="flex flex-col w-full max-w-[450px] gap-4 mt-6">
-                
+              <div className="flex flex-col w-full max-w-[300px] mt-2">
                 <button 
                   onClick={() => handleDownload(mainImage)}
                   disabled={isDownloading}
-                  className="flex items-center justify-center gap-2 w-full text-center border-2 border-[#0E0E10] bg-[#4B3AFF] text-white font-bold py-3 px-4 rounded-sm shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 hover:shadow-[6px_6px_0_#0E0E10] active:translate-y-0.5 active:shadow-[2px_2px_0_#0E0E10] transition-all uppercase tracking-wider text-sm disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[4px_4px_0_#0E0E10]"
+                  className="flex items-center justify-center gap-2.5 w-full bg-slate-900 dark:bg-indigo-600 text-white font-medium py-3.5 px-6 rounded-xl shadow-lg shadow-slate-900/20 dark:shadow-indigo-900/20 hover:bg-slate-800 dark:hover:bg-indigo-500 hover:shadow-xl hover:shadow-slate-900/30 dark:hover:shadow-indigo-900/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isDownloading ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Downloading {showInputAsMain ? 'Input' : 'Output'}...
+                      <Loader2 size={18} className="animate-spin text-slate-300 dark:text-indigo-200" />
+                      <span className="text-sm">Downloading...</span>
                     </>
                   ) : (
                     <>
-                      <Download size={16} strokeWidth={2.5} />
-                      Download {showInputAsMain ? 'Input' : 'Output'} Image
+                      <Download size={18} className="text-slate-300 dark:text-indigo-200" />
+                      <span className="text-sm">Download {showInputAsMain ? 'Input' : 'Result'}</span>
                     </>
                   )}
                 </button>
+                {generation.model && (
+                  <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4 font-medium tracking-wide">
+                    Generated with <span className="text-slate-600 dark:text-slate-300">{generation.model}</span>
+                  </p>
+                )}
 
+                <FeedbackLine 
+                  generationId={generationId} 
+                  initialSubmitted={generation.isFeedbacked} 
+                />
               </div>
             </div>
           )}
 
-          {/* Failed State */}
           {generation && generation.status === "failed" && (
-            <div className="border-2 border-[#0E0E10] bg-white p-8 shadow-[5px_5px_0_#0E0E10] w-full max-w-md text-center">
-              <div className="w-16 h-16 bg-red-500 border-2 border-[#0E0E10] shadow-[2px_2px_0_#0E0E10] mx-auto mb-4 flex items-center justify-center transform rotate-45">
-                <span className="text-white font-bold text-2xl -rotate-45">X</span>
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/50 w-full max-w-md text-center my-auto">
+              <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-full mx-auto mb-5 flex items-center justify-center">
+                <AlertCircle className="w-8 h-8 text-rose-500 dark:text-rose-400" />
               </div>
-              <h2 className="text-xl font-bold uppercase mb-2">Generation Failed</h2>
-              <p className="font-medium text-gray-600 mb-6">
-                {generation.error || "An unexpected error occurred during generation."}
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">Generation Failed</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                {generation.error || "An unexpected error occurred while processing your image. Please try again."}
               </p>
               <button 
-                onClick={() => window.history.back()}
-                className="border-2 border-[#0E0E10] bg-[#FFC93C] text-[#0E0E10] font-bold py-2 px-6 rounded-sm shadow-[3px_3px_0_#0E0E10] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#0E0E10] active:translate-y-[2px] active:shadow-[1px_1px_0_#0E0E10] transition-all uppercase"
+                onClick={() => router.back()}
+                className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-medium py-3 px-6 rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.98] transition-all text-sm"
               >
-                Try Again
+                Go Back & Try Again
               </button>
             </div>
           )}

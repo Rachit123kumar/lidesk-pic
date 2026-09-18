@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 
@@ -52,6 +53,10 @@ export async function GET(request, { params }) {
         error: true,
         createdAt: true,
         updatedAt: true,
+
+        // Feedback fields
+        feedbackText: true,
+        isFeedbacked: true,
       },
     });
 
@@ -79,3 +84,43 @@ export async function GET(request, { params }) {
     );
   }
 }
+
+
+
+// ```json
+// {
+//   "success": true,
+//   "data": {
+//     "id": "...",
+//     "status": "succeeded",
+//     "outputImageUrl": "...",
+//     "inputImageUrl": "...",
+//     "error": null,
+//     "createdAt": "...",
+//     "updatedAt": "...",
+//     "feedbackText": null,
+//     "isFeedbacked": false
+//   }
+// }
+// ```
+
+// Then after the user submits feedback, your feedback `POST` route can update:
+
+// ```javascript
+// await prisma.generation.update({
+//   where: { id },
+//   data: {
+//     feedbackText,
+//     isFeedbacked: true,
+//   },
+// });
+// ```
+
+// **One important thing:** make sure your Prisma schema actually uses the same spelling. If you keep your original names:
+
+// ```prisma
+// feedBackText
+// isFeedBacked
+// ```
+
+// then the `select` must use exactly those names. If you follow my suggested naming (`feedbackText`, `isFeedbacked`), use the code above.

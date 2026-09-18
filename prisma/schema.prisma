@@ -117,6 +117,10 @@ model Generation {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
+  feedbackText String?
+  isFeedbacked Boolean @default(false)
+  feedbackRating Int?
+
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   coinTransactions CoinTransaction[]
 
@@ -172,9 +176,9 @@ model Payment {
   providerOrderId   String          @unique
 
   // plan
-  planId String
-  coins  Int
-  emailSending      Boolean         @default(false)
+  planId       String
+  coins        Int
+  emailSending Boolean @default(false)
 
   // Money
   amount    Int
