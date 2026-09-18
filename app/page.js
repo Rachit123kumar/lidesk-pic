@@ -18,10 +18,9 @@ import {
   CheckCircle2,
   Menu,
   X,
-  Mail,
   Settings,
   ShieldCheck,
-  MapPin
+  Sparkles
 } from 'lucide-react';
 import { Space_Grotesk, Inter } from 'next/font/google';
 import { useSession } from 'next-auth/react';
@@ -42,44 +41,7 @@ const body = Inter({
 
 // --- DATA ---
 
-const STYLES = [
-  { id: 1, name: 'Professional', icon: Briefcase, desc: 'Corporate headshots for LinkedIn & CVs.', color: '#4B3AFF' },
-  { id: 2, name: 'Tinder Charm', icon: Heart, desc: 'Dressed sharp holding a red flower.', color: '#FF4D6D' },
-  { id: 3, name: 'Santa Claus', icon: Gift, desc: 'Festive holiday portraits as Santa.', color: '#1FA774' },
-  { id: 4, name: 'Cyberpunk', icon: Zap, desc: 'Neon lights and futuristic vibes.', color: '#4B3AFF' },
-  { id: 5, name: 'Royal', icon: Crown, desc: 'Elegant renaissance and royal attire.', color: '#FFC93C' },
-  { id: 6, name: 'Hollywood', icon: Star, desc: 'Red carpet ready glamorous shots.', color: '#FF4D6D' },
-  { id: 7, name: 'Astronaut', icon: Rocket, desc: 'Exploring the cosmos in a spacesuit.', color: '#4B3AFF' },
-  { id: 8, name: 'Pop Star', icon: Music, desc: 'Concert lighting and rockstar energy.', color: '#FF4D6D' },
-  { id: 9, name: 'Vintage', icon: Camera, desc: 'Classic 90s film aesthetic.', color: '#FFC93C' },
-  { id: 10, name: 'Academic', icon: Glasses, desc: 'Smart, scholarly look in a library.', color: '#1FA774' },
-];
-
 const FORMATS = ['JPG', 'PNG', 'WEBP'];
-
-const PRICING_PLANS = [
-  {
-    name: 'Starter',
-    price: '$9',
-    description: 'A first set, to see if it fits you.',
-    features: ['50 AI generated photos', '3 standard styles', 'Standard resolution', '24 hour delivery'],
-    popular: false
-  },
-  {
-    name: 'Premium',
-    price: '$19',
-    description: 'The set most people settle on.',
-    features: ['200 AI generated photos', 'All 10 styles', '4K resolution', '1 hour delivery', 'No watermark'],
-    popular: true
-  },
-  {
-    name: 'Unlimited',
-    price: '$49',
-    description: 'For the particular and the prolific.',
-    features: ['Unlimited photos', 'All current & future styles', '8K resolution', 'Instant generation', 'Commercial license'],
-    popular: false
-  }
-];
 
 const STEPS = [
   { title: 'Upload your photo', desc: 'A clear selfie is enough — no studio, no lighting kit required.', icon: Upload },
@@ -88,67 +50,51 @@ const STEPS = [
 ];
 
 const GALLERY_IMAGES = [
-  { id: 1, style: 'Cyberpunk', height: 'h-96', url: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=600&q=80' },
+  { id: 1, style: 'Cyberpunk', height: 'h-96', url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtyjm72u00058wvo0ztkkb16.jpg' },
   { id: 2, style: 'Professional', height: 'h-64', url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80' },
   { id: 3, style: 'Hollywood', height: 'h-80', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80' },
-  { id: 4, style: 'Vintage', height: 'h-72', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=600&q=80' },
-  { id: 5, style: 'Pop Star', height: 'h-96', url: 'https://images.unsplash.com/photo-1493225457224-2fae205565e3?w=600&q=80' },
-  { id: 6, style: 'Academic', height: 'h-64', url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&q=80' },
-  { id: 7, style: 'Astronaut', height: 'h-80', url: 'https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?w=600&q=80' },
+  { id: 4, style: 'Vintage', width:'w-72', url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtyjail100038wvob3bwjrkm.webp' },
+  { id: 7, style: 'Modern', width:'w-72', url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtzvuqnx000004l4wtbpz797.jpg' },
   { id: 8, style: 'Royal', height: 'h-96', url: 'https://images.unsplash.com/photo-1609505848912-b7c3b8b4beda?w=600&q=80' },
   { id: 9, style: 'Tinder Charm', height: 'h-72', url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&q=80' },
-  { id: 10, style: 'Santa Claus', height: 'h-64', url: 'https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=600&q=80' },
-  { id: 11, style: 'Cyberpunk', height: 'h-80', url: 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=600&q=80' },
+  { id: 11, style: 'Cyberpunk', width:'w-92', url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtyjm72u00058wvo0ztkkb16.jpg' },
   { id: 12, style: 'Professional', height: 'h-96', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80' }
 ];
 
 const HERO_POLAROIDS = [
   { url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80', color: '#4B3AFF', rotate: -8, label: 'Hollywood' },
   { url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80', color: '#FF4D6D', rotate: 5, label: 'Professional' },
-  { url: 'https://images.unsplash.com/photo-1493225457224-2fae205565e3?w=400&q=80', color: '#FFC93C', rotate: -3, label: 'Pop Star' },
+  { url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtykq4wg000a8wvo1fqhv42q.jpg', color: '#FFC93C', rotate: -3, label: 'Pop Star' },
 ];
 
-// --- COMPONENTS ---
+// Data specifically for the Animated Showcase section
+const INPUT_SELFIES = [
+   // Primary input'
+   'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/styles/482b7b3e-1d29-4fb9-accb-a27c4ae6128c.jpg',
+  'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/styles/d14b5a27-3900-4b37-87dd-bc8902129bd3.png'  // Secondary input
+];
 
-const InstagramIcon = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-  </svg>
-);
-
-const PlaceholderImage = ({ type, styleName, accent }) => (
-  <div
-    className="w-full h-full flex flex-col items-center justify-center p-6 text-center"
-    style={{ background: type === 'before' ? '#EFEEE8' : accent || '#4B3AFF' }}
-  >
-    <ImageIcon className="w-10 h-10 mb-3" style={{ color: type === 'before' ? '#9A9585' : '#FFFFFF', opacity: type === 'before' ? 1 : 0.9 }} strokeWidth={1.5} />
-    <span
-      className="text-lg mb-1"
-      style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: type === 'before' ? '#0E0E10' : '#FFFFFF' }}
-    >
-      {type === 'before' ? 'Original photo' : styleName}
-    </span>
-    <span className="text-xs max-w-xs" style={{ color: type === 'before' ? '#6B6656' : 'rgba(255,255,255,0.85)' }}>
-      Place the {type === 'before' ? "user's selfie" : 'generated result'} here
-    </span>
-  </div>
-);
+const GENERATED_OUTPUTS = [
+  { id: 1, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtygy5h2000004lhj24opzg3.webp', aspect: 'aspect-[3/4]', style: 'Professional', color: '#4B3AFF' },
+  { id: 2, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmu5k66ub000104l2wqxr06na.jpg', aspect: 'aspect-[4/5]', style: 'Hollywood', color: '#FF4D6D' },
+  { id: 3, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmu0hje0400007gvor05hvaa8.jpg', aspect: 'aspect-square', style: 'Tinder Charm', color: '#FFC93C' },
+  { id: 4, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtyjail100038wvob3bwjrkm.webp', aspect: 'aspect-[4/5]', style: 'Vintage', color: '#1FA774' },
+  { id: 5, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtpsvcm9000004jgnlj82byo/cmu68jb76000004l268soawq7.jpg', aspect: 'aspect-[2/3]', style: 'Royal', color: '#4B3AFF' },
+  { id: 6, url: 'https://pub-105fec70566540d1a4cf3698e960bfa4.r2.dev/generations/cmtm1dnh00000w0vo5mdmenl6/cmtyjm72u00058wvo0ztkkb16.jpg', aspect: 'aspect-square', style: 'Cyberpunk', color: '#FF4D6D' }
+];
 
 export default function App() {
   const { data: session, status } = useSession();
-  const router = useRouter(); // <--- This correctly initializes the router
+  const router = useRouter(); 
 
-  const [activeStyleIndex, setActiveStyleIndex] = useState(0);
-  const activeStyle = STYLES[activeStyleIndex];
-
-  const [sliderPos, setSliderPos] = useState(50);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [selectedFormat, setSelectedFormat] = useState(FORMATS[0]);
+
+  // Demo Animation State
+  // 0: Separated inputs, 1: Mixing & Uploading, 2: Working/Processing, 3: Showing Outputs
+  const [demoPhase, setDemoPhase] = useState(0); 
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -156,16 +102,27 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Four-Phase Animation Loop Controller
   useEffect(() => {
-    if (!isAutoPlaying) return;
-    const interval = setInterval(() => {
-      setActiveStyleIndex((prev) => (prev + 1) % STYLES.length);
-      setSliderPos(50);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+    let timer;
+    if (demoPhase === 0) {
+      // Phase 0: Show images side by side for 1.5 seconds
+      setUploadProgress(0);
+      timer = setTimeout(() => setDemoPhase(1), 1500); 
+    } else if (demoPhase === 1) {
+      // Phase 1: Images slide together to mix, and progress bar fills up (2.5 seconds)
+      setTimeout(() => setUploadProgress(100), 100); 
+      timer = setTimeout(() => setDemoPhase(2), 2500);
+    } else if (demoPhase === 2) {
+      // Phase 2: Processing state (1.5 seconds)
+      timer = setTimeout(() => setDemoPhase(3), 1500);
+    } else if (demoPhase === 3) {
+      // Phase 3: Show outputs (6 seconds) then restart
+      timer = setTimeout(() => setDemoPhase(0), 6000);
+    }
+    return () => clearTimeout(timer);
+  }, [demoPhase]);
 
-  // Unified auth click handler to keep code clean and prevent router errors
   const handleAuthClick = (e) => {
     e.preventDefault();
     if (status === "loading") return; 
@@ -184,6 +141,18 @@ export default function App() {
     >
       <style>{`
         html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+        
+        .masonry-item:nth-child(1) { animation: float 6s infinite ease-in-out; animation-delay: 0s; }
+        .masonry-item:nth-child(2) { animation: float 7s infinite ease-in-out; animation-delay: 0.5s; }
+        .masonry-item:nth-child(3) { animation: float 6.5s infinite ease-in-out; animation-delay: 1s; }
+        .masonry-item:nth-child(4) { animation: float 7.5s infinite ease-in-out; animation-delay: 0.2s; }
+        .masonry-item:nth-child(5) { animation: float 6s infinite ease-in-out; animation-delay: 0.8s; }
+        .masonry-item:nth-child(6) { animation: float 8s infinite ease-in-out; animation-delay: 0.4s; }
       `}</style>
 
       {/* NAVBAR */}
@@ -191,23 +160,16 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 flex items-center justify-center bg-[#0E0E10]">
-              {/* <Camera className="w-4 h-4 text-[#FAFAF8]" strokeWidth={2} /> */}
               <div className="rounded-lg">
-  <Image
-    src="/logo1.png"
-    alt="Libdesk"
-    width={24}
-    height={24}
-    className="rounded-lg"
-  />
-</div>
+                <Image src="/logo1.png" alt="Libdesk" width={24} height={24} className="rounded-lg" />
+              </div>
             </div>
             <span className="text-lg" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>LibDesk</span>
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-[14px] font-medium">
             <a href="#how-it-works" className="hover:text-[#4B3AFF] transition-colors">How it works</a>
-            <a href="#styles" className="hover:text-[#4B3AFF] transition-colors">Demo</a>
+            <a href="#showcase" className="hover:text-[#4B3AFF] transition-colors">Demo</a>
             <a href="#gallery" className="hover:text-[#4B3AFF] transition-colors">Gallery</a>
             <a href="#pricing" className="hover:text-[#4B3AFF] transition-colors">Pricing</a>
             <a
@@ -227,7 +189,7 @@ export default function App() {
         {isMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-[#FAFAF8] border-b-2 border-[#0E0E10] p-6 flex flex-col gap-5 font-medium">
             <a href="#how-it-works" onClick={() => setIsMenuOpen(false)}>How it works</a>
-            <a href="#styles" onClick={() => setIsMenuOpen(false)}>Demo</a>
+            <a href="#showcase" onClick={() => setIsMenuOpen(false)}>Demo</a>
             <a href="#gallery" onClick={() => setIsMenuOpen(false)}>Gallery</a>
             <a href="#pricing" onClick={() => setIsMenuOpen(false)}>Pricing</a>
             <a
@@ -298,93 +260,95 @@ export default function App() {
         </div>
       </section>
 
-      {/* INTERACTIVE SHOWCASE */}
-      <section id="styles" className="py-24 border-t-2 border-[#0E0E10] px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-14 max-w-xl">
+      {/* ANIMATED PIPELINE SHOWCASE */}
+      <section id="showcase" className="py-24 border-t-2 border-[#0E0E10] px-6 bg-white overflow-hidden">
+        <div className="max-w-5xl mx-auto">
+          
+          <div className="mb-12 max-w-xl text-center mx-auto">
             <h2 className="text-3xl md:text-4xl mb-4" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-              Ten looks, one photo
+              One photo. Infinite possibilities.
             </h2>
             <p className="text-[#4A473F] text-[16px] leading-relaxed">
-              Pick a style and drag the divider to compare the original against the render.
+              Upload your selfies once. Our AI automatically renders dozens of studio-quality portraits in varying styles instantly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-4 order-2 lg:order-1">
-              <div className="grid grid-cols-2 gap-2.5">
-                {STYLES.map((style, idx) => {
-                  const isActive = activeStyle.id === style.id;
-                  return (
-                    <button
-                      key={style.id}
-                      onClick={() => {
-                        setActiveStyleIndex(idx);
-                        setSliderPos(50);
-                        setIsAutoPlaying(false);
-                      }}
-                      className="flex items-center gap-2 py-2.5 px-3 border-2 border-[#0E0E10] text-left transition-transform hover:-translate-y-0.5"
-                      style={{
-                        background: isActive ? style.color : '#FFFFFF',
-                        color: isActive ? '#FFFFFF' : '#0E0E10',
-                        boxShadow: isActive ? '3px 3px 0 #0E0E10' : 'none',
-                      }}
-                    >
-                      <style.icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
-                      <span className="text-[13px] font-semibold">{style.name}</span>
-                    </button>
-                  );
-                })}
+          <div className="relative w-full h-[550px] md:h-[650px] border-2 border-[#0E0E10] bg-[#FAFAF8] shadow-[8px_8px_0_#0E0E10] overflow-hidden flex items-center justify-center">
+            
+            {/* PHASE 0 & 1: UPLOADING & MIXING */}
+            <div className={`absolute transition-all duration-700 ease-in-out flex flex-col items-center justify-center ${(demoPhase === 0 || demoPhase === 1) ? 'opacity-100 scale-100 z-20' : 'opacity-0 scale-75 pointer-events-none z-0'}`}>
+              
+              <div className="relative w-full max-w-[340px] h-[280px] mb-8 flex justify-center items-center">
+                
+                {/* Secondary Image (Left side) */}
+                <div 
+                  className={`absolute border-2 border-[#0E0E10] bg-white p-2.5 shadow-[4px_4px_0_#0E0E10] transition-all duration-1000 ease-in-out
+                    ${demoPhase === 0 ? '-translate-x-[70px] -rotate-[10deg] scale-100' : 'translate-x-[15px] rotate-[8deg] scale-90 opacity-80'}`}
+                  style={{ width: '170px', aspectRatio: '4/5', zIndex: 1 }}
+                >
+                  <img src={INPUT_SELFIES[1]} alt="Input 2" className="w-full h-full object-cover filter grayscale-[10%]" />
+                  <div className="absolute -bottom-3 right-3 bg-[#FFC93C] text-[10px] font-bold border-2 border-[#0E0E10] px-2 py-1 rotate-[-6deg]">Selfie 2</div>
+                </div>
+                
+                {/* Primary Image (Right side) */}
+                <div 
+                  className={`absolute border-2 border-[#0E0E10] bg-white p-2.5 shadow-[6px_6px_0_#0E0E10] transition-all duration-1000 ease-in-out
+                    ${demoPhase === 0 ? 'translate-x-[70px] rotate-[10deg] scale-100' : '-translate-x-[10px] -rotate-[4deg] scale-105'}`}
+                  style={{ width: '170px', aspectRatio: '4/5', zIndex: 2 }}
+                >
+                  <img src={INPUT_SELFIES[0]} alt="Input 1" className="w-full h-full object-cover" />
+                  <div className="absolute -top-3 -left-3 bg-[#4B3AFF] text-white text-[10px] font-bold border-2 border-[#0E0E10] px-2 py-1 rotate-[-12deg]">Your selfie</div>
+                </div>
+
               </div>
-            </div>
-
-            <div className="lg:col-span-8 order-1 lg:order-2">
-              <div className="border-2 border-[#0E0E10]" style={{ boxShadow: '6px 6px 0 #0E0E10' }}>
-                <div className="relative w-full aspect-[4/5] sm:aspect-video mx-auto overflow-hidden select-none max-h-[70vh]">
-                  <div className="absolute inset-0 w-full h-full">
-                    <PlaceholderImage type="before" />
-                  </div>
-
-                  <div
-                    className="absolute inset-0 w-full h-full"
-                    style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
-                  >
-                    <PlaceholderImage type="after" styleName={activeStyle.name} accent={activeStyle.color} />
-                  </div>
-
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={sliderPos}
-                    onChange={(e) => setSliderPos(e.target.value)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
-                    aria-label="Image comparison slider"
+              
+              {/* Progress Bar Container - Only visible in Phase 1 */}
+              <div className={`transition-all duration-500 ease-in-out ${demoPhase === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                <div className="w-56 h-3 bg-white border-2 border-[#0E0E10] rounded-full overflow-hidden mx-auto">
+                  <div 
+                    className="h-full bg-[#4B3AFF]" 
+                    style={{ width: `${uploadProgress}%`, transition: demoPhase === 1 ? 'width 2.4s linear' : 'none' }} 
                   />
-
-                  <div className="absolute top-0 bottom-0 w-1 bg-[#0E0E10] pointer-events-none z-10" style={{ left: `${sliderPos}%` }}>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white border-2 border-[#0E0E10] flex items-center justify-center">
-                      <MoveHorizontal className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  <div className="absolute top-4 left-4 bg-white text-[11px] font-bold px-2.5 py-1 pointer-events-none border-2 border-[#0E0E10]">
-                    BEFORE
-                  </div>
-                  <div
-                    className="absolute top-4 right-4 text-[11px] font-bold px-2.5 py-1 pointer-events-none border-2 border-[#0E0E10] text-white"
-                    style={{ background: activeStyle.color }}
-                  >
-                    {activeStyle.name}
-                  </div>
                 </div>
-
-                <div className="p-5 border-t-2 border-[#0E0E10] bg-white">
-                  <h3 className="text-lg mb-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>{activeStyle.name}</h3>
-                  <p className="text-[#4A473F] text-[14px]">{activeStyle.desc}</p>
-                </div>
+                <p className="mt-4 text-[14px] font-bold text-[#0E0E10] animate-pulse text-center" style={{ fontFamily: 'var(--font-display)' }}>
+                  Uploading and analyzing...
+                </p>
               </div>
             </div>
+
+            {/* PHASE 2: PROCESSING / WORKING */}
+            <div className={`absolute transition-all duration-500 ease-in-out flex flex-col items-center justify-center ${demoPhase === 2 ? 'opacity-100 scale-100 z-20' : 'opacity-0 scale-110 pointer-events-none z-0'}`}>
+              <Sparkles className="w-14 h-14 text-[#FFC93C] mb-4 animate-bounce" strokeWidth={2} />
+              <h3 className="text-2xl font-bold text-[#0E0E10] text-center px-4" style={{ fontFamily: 'var(--font-display)' }}>
+                Generating 6 unique styles...
+              </h3>
+            </div>
+
+            {/* PHASE 3: SHOWING OUTPUTS */}
+            <div className={`absolute inset-0 w-full h-full p-4 md:p-8 transition-all duration-700 ease-out flex items-center justify-center bg-[#FAFAF8] ${demoPhase === 3 ? 'opacity-100 scale-100 z-20' : 'opacity-0 scale-95 pointer-events-none z-0'}`}>
+               <div className="w-full max-w-4xl columns-2 md:columns-3 gap-4 md:gap-6 space-y-4 md:space-y-6">
+                 {GENERATED_OUTPUTS.map((out) => {
+                   // Calculate text color based on background color brightness roughly
+                   const textColor = out.color === '#FFC93C' ? '#0E0E10' : '#FFFFFF';
+                   
+                   return (
+                     <div 
+                       key={out.id} 
+                       className="masonry-item break-inside-avoid relative border-2 border-[#0E0E10] bg-white p-1.5 shadow-[4px_4px_0_#0E0E10] hover:-translate-y-1 transition-transform"
+                     >
+                     <img src={out.url} alt={out.style} className={`w-full ${out.aspect} object-cover object-top`} />
+                        <div 
+                          className="absolute bottom-2 left-2 text-[10px] md:text-[11px] font-bold border-2 border-[#0E0E10] px-2 py-1"
+                          style={{ background: out.color, color: textColor }}
+                        >
+                          {out.style}
+                        </div>
+                     </div>
+                   );
+                 })}
+               </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -460,393 +424,312 @@ export default function App() {
       </section>
 
       {/* PRICING */}
-  
-<section id="pricing" className="py-24 border-t-2 border-[#0E0E10] px-6">
-  <div className="max-w-7xl mx-auto">
+      <section id="pricing" className="py-24 border-t-2 border-[#0E0E10] px-6">
+        <div className="max-w-6xl mx-auto">
 
-    {/* Heading */}
-    <div className="mb-14 max-w-xl">
-      <h2
-        className="text-3xl md:text-4xl mb-4"
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 700,
-        }}
-      >
-        Simple pricing. No subscription.
-      </h2>
+          {/* Heading */}
+          <div className="mb-14 max-w-xl">
+            <h2
+              className="text-3xl md:text-4xl mb-4"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+              }}
+            >
+              Simple pricing. No subscription.
+            </h2>
 
-      <p className="text-[#4A473F] text-[16px] leading-relaxed">
-        Buy credits once and use them whenever you need professional
-        headshots. No monthly commitment.
-      </p>
-    </div>
+            <p className="text-[#4A473F] text-[16px] leading-relaxed">
+              Buy credits once and use them whenever you need professional
+              headshots. No monthly commitment.
+            </p>
+          </div>
 
-    {/* Output format */}
-    <div className="mb-14 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pb-8 border-b-2 border-[#0E0E10]">
-      <div className="flex items-center gap-2 text-[14px] font-semibold">
-        <Settings
-          className="w-4 h-4 text-[#4B3AFF]"
-          strokeWidth={2}
-        />
-        <span>Output format</span>
-      </div>
+          {/* Output format */}
+          <div className="mb-14 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 pb-8 border-b-2 border-[#0E0E10]">
+            <div className="flex items-center gap-2 text-[14px] font-semibold">
+              <Settings
+                className="w-4 h-4 text-[#4B3AFF]"
+                strokeWidth={2}
+              />
+              <span>Output format</span>
+            </div>
 
-      <div className="flex gap-2 flex-wrap">
-        {FORMATS.map((fmt) => (
-          <button
-            key={fmt}
-            onClick={() => setSelectedFormat(fmt)}
-            className="px-4 py-2 text-[13px] font-bold border-2 border-[#0E0E10] transition-all hover:-translate-y-0.5"
-            style={{
-              background:
-                selectedFormat === fmt ? '#0E0E10' : '#FFFFFF',
-              color:
-                selectedFormat === fmt ? '#FFFFFF' : '#0E0E10',
-            }}
-          >
-            .{fmt}
-          </button>
-        ))}
-      </div>
-    </div>
+            <div className="flex gap-2 flex-wrap">
+              {FORMATS.map((fmt) => (
+                <button
+                  key={fmt}
+                  onClick={() => setSelectedFormat(fmt)}
+                  className="px-4 py-2 text-[13px] font-bold border-2 border-[#0E0E10] transition-all hover:-translate-y-0.5"
+                  style={{
+                    background:
+                      selectedFormat === fmt ? '#0E0E10' : '#FFFFFF',
+                    color:
+                      selectedFormat === fmt ? '#FFFFFF' : '#0E0E10',
+                  }}
+                >
+                  .{fmt}
+                </button>
+              ))}
+            </div>
+          </div>
 
-    {/* Pricing Cards */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
+          {/* Pricing Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
-      {/* Starter */}
-      <div
-        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
-        style={{
-          boxShadow: '4px 4px 0 #0E0E10',
-        }}
-      >
-        <div className="mb-7">
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
-            Starter
-          </p>
+            {/* Starter */}
+            <div
+              className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
+              style={{
+                boxShadow: '4px 4px 0 #0E0E10',
+              }}
+            >
+              <div className="mb-7">
+                <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
+                  Starter
+                </p>
 
-          <h3
-            className="text-2xl mb-2"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            10 Credits
-          </h3>
+                <h3
+                  className="text-2xl mb-2"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  10 Credits
+                </h3>
 
-          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
-            Perfect for trying out your first professional headshots.
-          </p>
+                <p className="text-[14px] text-[#4A473F] min-h-[42px]">
+                  Perfect for trying out your first professional headshots.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <span
+                  className="text-4xl"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  ₹399
+                </span>
+                <span className="text-[13px] text-[#4A473F] ml-1">
+                  one-time
+                </span>
+              </div>
+
+              <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>10 coins</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>Multiple professional styles</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>High-quality output</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>Credits never expire</span>
+                </li>
+              </ul>
+
+              <button
+                onClick={handleAuthClick}
+                className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+              >
+                Get 10 Credits
+              </button>
+            </div>
+
+            {/* Popular */}
+            <div
+              className="relative flex flex-col p-7 border-2 border-[#0E0E10]"
+              style={{
+                background: '#4B3AFF',
+                color: '#FFFFFF',
+                boxShadow: '6px 6px 0 #0E0E10',
+              }}
+            >
+              <span
+                className="absolute -top-3 left-6 text-[11px] font-bold px-2.5 py-1 border-2 border-[#0E0E10]"
+                style={{
+                  background: '#FFC93C',
+                  color: '#0E0E10',
+                }}
+              >
+                Most chosen
+              </span>
+
+              <div className="mb-7">
+                <p className="text-[12px] font-bold uppercase tracking-wider text-[#FFC93C] mb-2">
+                  Popular
+                </p>
+
+                <h3
+                  className="text-2xl mb-2"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  25 Credits
+                </h3>
+
+                <p className="text-[14px] min-h-[42px] opacity-90">
+                  A balanced pack for creating several looks and profiles.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <span
+                  className="text-4xl"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  ₹790
+                </span>
+                <span className="text-[13px] ml-1 opacity-80">
+                  one-time
+                </span>
+              </div>
+
+              <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+                  <span>25 AI headshot generations</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+                  <span>All professional styles</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
+                  <span>Credits never expire</span>
+                </li>
+              </ul>
+
+              <button
+                onClick={handleAuthClick}
+                className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+              >
+                Get 25 Credits
+              </button>
+            </div>
+
+            {/* Pro */}
+            <div
+              className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
+              style={{
+                boxShadow: '4px 4px 0 #0E0E10',
+              }}
+            >
+              <div className="mb-7">
+                <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
+                  Pro
+                </p>
+
+                <h3
+                  className="text-2xl mb-2"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  50 Credits
+                </h3>
+
+                <p className="text-[14px] text-[#4A473F] min-h-[42px]">
+                  Great for frequent profile, portfolio and career updates.
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <span
+                  className="text-4xl"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 700,
+                  }}
+                >
+                  ₹1580
+                </span>
+                <span className="text-[13px] text-[#4A473F] ml-1">
+                  one-time
+                </span>
+              </div>
+
+              <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>50 AI headshot generations</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>All professional styles</span>
+                </li>
+
+                <li className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
+                  <span>Credits never expire</span>
+                </li>
+              </ul>
+
+              <button
+                onClick={handleAuthClick}
+                className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
+              >
+                Get 50 Credits
+              </button>
+            </div>
+
+          </div>
+
+          {/* Free credits + security */}
+          <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px] text-[#4A473F]">
+
+            <div className="flex items-center gap-3">
+              <CheckCircle2
+                className="w-4 h-4 text-[#1FA774]"
+                strokeWidth={2}
+              />
+              <span>
+                <span className="font-semibold text-[#0E0E10]">
+                  5 free credits
+                </span>{' '}
+                included when you create an account.
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <ShieldCheck
+                className="w-4 h-4 text-[#1FA774]"
+                strokeWidth={2}
+              />
+              <span>
+                Secure checkout. Card details are never stored.
+              </span>
+            </div>
+
+          </div>
+
         </div>
-
-        <div className="mb-8">
-          <span
-            className="text-4xl"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            ₹299
-          </span>
-          <span className="text-[13px] text-[#4A473F] ml-1">
-            one-time
-          </span>
-        </div>
-
-        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>10 AI headshot generations</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Multiple professional styles</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>High-quality output</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Credits never expire</span>
-          </li>
-        </ul>
-
-        <button
-          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
-        >
-          Get 10 Credits
-        </button>
-      </div>
-
-      {/* Popular */}
-      <div
-        className="relative flex flex-col p-7 border-2 border-[#0E0E10]"
-        style={{
-          background: '#4B3AFF',
-          color: '#FFFFFF',
-          boxShadow: '6px 6px 0 #0E0E10',
-        }}
-      >
-        <span
-          className="absolute -top-3 left-6 text-[11px] font-bold px-2.5 py-1 border-2 border-[#0E0E10]"
-          style={{
-            background: '#FFC93C',
-            color: '#0E0E10',
-          }}
-        >
-          Most chosen
-        </span>
-
-        <div className="mb-7">
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[#FFC93C] mb-2">
-            Popular
-          </p>
-
-          <h3
-            className="text-2xl mb-2"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            25 Credits
-          </h3>
-
-          <p className="text-[14px] min-h-[42px] opacity-90">
-            A balanced pack for creating several looks and profiles.
-          </p>
-        </div>
-
-        <div className="mb-8">
-          <span
-            className="text-4xl"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            ₹599
-          </span>
-          <span className="text-[13px] ml-1 opacity-80">
-            one-time
-          </span>
-        </div>
-
-        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
-            <span>25 AI headshot generations</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
-            <span>All professional styles</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
-            <span>High-quality output</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#FFC93C]" />
-            <span>Credits never expire</span>
-          </li>
-        </ul>
-
-        <button
-          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
-        >
-          Get 25 Credits
-        </button>
-      </div>
-
-      {/* Pro */}
-      <div
-        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
-        style={{
-          boxShadow: '4px 4px 0 #0E0E10',
-        }}
-      >
-        <div className="mb-7">
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
-            Pro
-          </p>
-
-          <h3
-            className="text-2xl mb-2"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            50 Credits
-          </h3>
-
-          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
-            Great for frequent profile, portfolio and career updates.
-          </p>
-        </div>
-
-        <div className="mb-8">
-          <span
-            className="text-4xl"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            ₹999
-          </span>
-          <span className="text-[13px] text-[#4A473F] ml-1">
-            one-time
-          </span>
-        </div>
-
-        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>50 AI headshot generations</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>All professional styles</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Priority generation access</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Credits never expire</span>
-          </li>
-        </ul>
-
-        <button
-          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
-        >
-          Get 50 Credits
-        </button>
-      </div>
-
-      {/* Best Value */}
-      <div
-        className="relative flex flex-col p-7 border-2 border-[#0E0E10] bg-white"
-        style={{
-          boxShadow: '4px 4px 0 #0E0E10',
-        }}
-      >
-        <div className="mb-7">
-          <p className="text-[12px] font-bold uppercase tracking-wider text-[#4B3AFF] mb-2">
-            Best Value
-          </p>
-
-          <h3
-            className="text-2xl mb-2"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            100 Credits
-          </h3>
-
-          <p className="text-[14px] text-[#4A473F] min-h-[42px]">
-            The best choice for heavy use and multiple projects.
-          </p>
-        </div>
-
-        <div className="mb-8">
-          <span
-            className="text-4xl"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-            }}
-          >
-            ₹1,799
-          </span>
-          <span className="text-[13px] text-[#4A473F] ml-1">
-            one-time
-          </span>
-        </div>
-
-        <ul className="flex flex-col gap-3.5 mb-8 flex-grow text-[14px]">
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>100 AI headshot generations</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>All professional styles</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Best price per generation</span>
-          </li>
-
-          <li className="flex items-start gap-2.5">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#4B3AFF]" />
-            <span>Credits never expire</span>
-          </li>
-        </ul>
-
-        <button
-          className="w-full py-3.5 font-bold border-2 border-[#0E0E10] bg-[#0E0E10] text-white transition-transform hover:-translate-y-0.5"
-        >
-          Get 100 Credits
-        </button>
-      </div>
-
-    </div>
-
-    {/* Free credits + security */}
-    <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-[13px] text-[#4A473F]">
-
-      <div className="flex items-center gap-3">
-        <CheckCircle2
-          className="w-4 h-4 text-[#1FA774]"
-          strokeWidth={2}
-        />
-        <span>
-          <span className="font-semibold text-[#0E0E10]">
-            5 free credits
-          </span>{' '}
-          included when you create an account.
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <ShieldCheck
-          className="w-4 h-4 text-[#1FA774]"
-          strokeWidth={2}
-        />
-        <span>
-          Secure checkout. Card details are never stored.
-        </span>
-      </div>
-
-    </div>
-
-  </div>
-</section>
-
-
+      </section>
 
       {/* FOOTER */}
-     <Footer/>
+      <Footer/>
     </div>
   );
 }
