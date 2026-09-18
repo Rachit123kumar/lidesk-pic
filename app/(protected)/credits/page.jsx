@@ -4,6 +4,7 @@ import { authOptions } from "../../api/auth/[...nextauth]/route";
 import { prisma } from "../../../lib/prisma";
 import Sidebar from "../../components/SIdeBar";
 import { Receipt, History, AlertCircle, Clock } from "lucide-react";
+import LocalTime from "../../components/Localtime"; // Adjust path as needed
 
 export default async function PaymentsPage() {
   const session = await getServerSession(authOptions);
@@ -56,9 +57,7 @@ export default async function PaymentsPage() {
       <main className="flex-1 h-full overflow-y-auto pt-20 lg:pt-10 p-5 md:p-8">
         <div className="max-w-6xl mx-auto pb-20">
           
-          {/* -----------------------------
-              Header Section
-          ----------------------------- */}
+          {/* Header Section */}
           <div className="mb-10 mt-4">
             <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 px-4 py-2 rounded-full mb-6">
               <History size={16} className="text-indigo-600 dark:text-indigo-400" />
@@ -76,9 +75,7 @@ export default async function PaymentsPage() {
             </p>
           </div>
 
-          {/* -----------------------------
-              Main Content
-          ----------------------------- */}
+          {/* Main Content */}
           {payments.length === 0 ? (
             <div className="flex flex-col items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl p-16 text-center">
               <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-full mb-6 border border-slate-100 dark:border-slate-800">
@@ -97,24 +94,12 @@ export default async function PaymentsPage() {
                 <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Plan
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Coins
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Amount
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Status
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Payment ID
-                      </th>
-                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">
-                        Date
-                      </th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Plan</th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Coins</th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Amount</th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Status</th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Payment ID</th>
+                      <th className="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Date</th>
                     </tr>
                   </thead>
 
@@ -124,25 +109,17 @@ export default async function PaymentsPage() {
                         key={payment.id}
                         className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors duration-150"
                       >
-                        {/* Plan Name */}
                         <td className="px-6 py-5 font-semibold text-slate-900 dark:text-white">
                           {payment.plan.name}
                         </td>
-
-                        {/* Coins */}
                         <td className="px-6 py-5">
                           <span className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-lg text-sm font-medium">
                             {payment.coins}
                           </span>
                         </td>
-
-                        {/* Amount */}
                         <td className="px-6 py-5 font-semibold text-slate-900 dark:text-white">
-                          {payment.currency}{" "}
-                          {(payment.amount / 100).toFixed(2)}
+                          {payment.currency} {(payment.amount / 100).toFixed(2)}
                         </td>
-
-                        {/* Status Badge */}
                         <td className="px-6 py-5">
                           <span
                             className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${
@@ -160,8 +137,6 @@ export default async function PaymentsPage() {
                             {payment.status}
                           </span>
                         </td>
-
-                        {/* Payment ID */}
                         <td className="px-6 py-5 font-mono text-sm text-slate-500 dark:text-slate-400">
                           {payment.providerPaymentId || (
                             <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-500 font-sans font-medium">
@@ -169,16 +144,9 @@ export default async function PaymentsPage() {
                             </span>
                           )}
                         </td>
-
-                        {/* Date */}
                         <td className="px-6 py-5 text-slate-500 dark:text-slate-400 text-sm whitespace-nowrap">
-                          {new Date(payment.createdAt).toLocaleString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {/* Replaced server-side date formatting with the client component */}
+                          <LocalTime date={payment.createdAt} />
                         </td>
                       </tr>
                     ))}
