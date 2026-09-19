@@ -9,6 +9,7 @@ import {
   History,
   CreditCard,
   User,
+  Upload,
   Settings,
   LogOut,
   Coins,
@@ -31,7 +32,8 @@ export default function Sidebar() {
     { name: 'History', icon: History, href: '/history' },
     { name: 'Buy coins', icon: CreditCard, href: '/payment' },
     { name: 'credits', icon: Coins, href: '/credits' },
-    // { name: 'Settings', icon: Settings, href: '/setting' },
+    
+    { name: 'Upload', icon: Upload, href: '/upload' },
   ];
 
   return (
