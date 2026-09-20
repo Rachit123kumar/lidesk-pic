@@ -71,6 +71,14 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+enum Type{
+  male
+  female 
+  both
+  
+}
+
+
 model Style {
   id String @id @default(cuid())
 
@@ -84,6 +92,8 @@ model Style {
   description String?
   advice      String?
   isActive    Boolean  @default(true)
+
+  type       Type  @default(both)
 
   generationCost Int    @default(1)
   createdBy      String @default("Admin")
