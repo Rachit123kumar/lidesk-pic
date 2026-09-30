@@ -19,7 +19,7 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  coins Int @default(4)
+  coins Int @default(1)
 
   accounts    Account[]
   sessions    Session[]
@@ -27,8 +27,9 @@ model User {
   coinHistory CoinTransaction[]
   payments    Payment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  supportConversations SupportConversation[]
 }
 
 model Account {
@@ -71,13 +72,11 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-enum Type{
+enum Type {
   male
-  female 
+  female
   both
-  
 }
-
 
 model Style {
   id String @id @default(cuid())
@@ -93,7 +92,7 @@ model Style {
   advice      String?
   isActive    Boolean  @default(true)
 
-  type       Type  @default(both)
+  type Type @default(both)
 
   generationCost Int    @default(1)
   createdBy      String @default("Admin")
@@ -127,8 +126,8 @@ model Generation {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
-  feedbackText String?
-  isFeedbacked Boolean @default(false)
+  feedbackText   String?
+  isFeedbacked   Boolean @default(false)
   feedbackRating Int?
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -223,4 +222,45 @@ model Plan {
   payments  Payment[]
   price     Int
   currency  String    @default("INR")
+}
+enum SupportConversationStatus {
+  open
+  closed
+}
+
+enum SupportMessageSender {
+  user
+  admin
+}
+
+model SupportConversation {
+  id            String                    @id @default(cuid())
+  userId        String
+  status        SupportConversationStatus @default(open)
+  lastMessageAt DateTime                  @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages SupportMessage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([lastMessageAt])
+}
+model SupportMessage {
+  id             String               @id @default(cuid())
+  conversationId String
+  sender         SupportMessageSender
+  message        String
+
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversation SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, Loader2, ArrowRightLeft, Image as ImageIcon, AlertCircle, Sparkles, ArrowLeft } from "lucide-react"; 
+import { Download, Loader2, ArrowRightLeft, Image as ImageIcon, AlertCircle, Sparkles, ArrowLeft, ImageIcon as ImagePlaceholder } from "lucide-react"; 
 import Sidebar from "../../../components/SIdeBar"; 
 import FeedbackLine from "../../../components/FeedbackLine"; 
 
@@ -14,8 +14,15 @@ export default function ActiveGenerationPage() {
   const [generation, setGeneration] = useState(null);
   const [error, setError] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  
   const [showInputAsMain, setShowInputAsMain] = useState(false);
+
+  // 1. FIXED: Use a dictionary to track loaded URLs to prevent race conditions
+  const [loadedImages, setLoadedImages] = useState({});
+
+  const handleImageLoad = (url) => {
+    if (!url) return;
+    setLoadedImages((prev) => ({ ...prev, [url]: true }));
+  };
 
   useEffect(() => {
     if (!generationId) return;
@@ -85,11 +92,14 @@ export default function ActiveGenerationPage() {
   const mainLabel = showInputAsMain ? "Original Input" : "Generated Artwork";
   const thumbnailLabel = showInputAsMain ? "View Result" : "View Input";
 
+  // 2. Check if the current URLs exist in our loaded dictionary
+  const mainImageLoaded = loadedImages[mainImage] || false;
+  const thumbImageLoaded = loadedImages[thumbnailImage] || false;
+
   return (
     <div className="h-screen max-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col lg:flex-row overflow-hidden antialiased selection:bg-indigo-100 dark:selection:bg-indigo-900/50 selection:text-indigo-900 dark:selection:text-indigo-200">
       <Sidebar />
 
-      {/* Grid Background adapted for Light & Dark */}
       <main className="flex-1 flex flex-col h-full pt-14 lg:pt-0 w-full relative font-sans overflow-y-auto bg-slate-50 dark:bg-slate-950 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]">
         
         {/* Glassmorphic Header */}
@@ -160,34 +170,57 @@ export default function ActiveGenerationPage() {
           {generation && generation.status === "succeeded" && generation.outputImageUrl && (
             <div className="flex flex-col items-center gap-8 w-full my-auto animate-in fade-in zoom-in duration-500 ease-out">
               
-              <div className="relative flex justify-center max-w-[500px] w-full group">
-                <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+              <div className="relative flex justify-center max-w-[500px] min-h-[400px] w-full group rounded-[24px] shadow-2xl shadow-slate-300/60 dark:shadow-black/60 bg-slate-100/50 dark:bg-slate-800/30 overflow-visible">
+                
+                <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
                   <span className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-200 text-xs font-semibold py-1.5 px-3.5 rounded-full shadow-sm border border-white/50 dark:border-slate-700/50 flex items-center gap-1.5">
                     <ImageIcon size={12} className="text-slate-500 dark:text-slate-400" />
                     {mainLabel}
                   </span>
                 </div>
                 
+                {/* Smooth Skeleton Placeholder Overlay */}
+                {!mainImageLoaded && (
+                  <div className="absolute inset-0 z-0 flex flex-col items-center justify-center gap-4 bg-slate-100 dark:bg-slate-800 rounded-[24px] animate-pulse">
+                    <ImagePlaceholder className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                  </div>
+                )}
+
+                {/* 3. Updated Image Tag with new onLoad logic */}
                 <img 
+                  key={mainImage}
                   src={mainImage} 
                   alt="Main display" 
-                  className="max-w-full h-auto max-h-[65vh] object-contain rounded-[24px] shadow-2xl shadow-slate-300/60 dark:shadow-black/60 transition-transform duration-700 group-hover:scale-[1.01] bg-slate-100 dark:bg-slate-800"
+                  onLoad={() => handleImageLoad(mainImage)}
+                  className={`relative z-10 max-w-full h-auto max-h-[65vh] object-contain rounded-[24px] transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]
+                    ${mainImageLoaded ? 'opacity-100 blur-0 scale-100 group-hover:scale-[1.01]' : 'opacity-0 blur-xl scale-95'}
+                  `}
                 />
 
                 {generation.inputImageUrl && thumbnailImage && (
                   <button 
                     onClick={() => setShowInputAsMain(!showInputAsMain)}
-                    className="absolute -bottom-5 -right-5 w-32 h-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1.5 rounded-2xl shadow-xl shadow-slate-300/60 dark:shadow-black/60 border border-white/60 dark:border-slate-700/60 hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col z-20 group/thumb overflow-hidden"
+                    className="absolute -bottom-5 -right-5 w-32 h-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1.5 rounded-2xl shadow-xl shadow-slate-300/60 dark:shadow-black/60 border border-white/60 dark:border-slate-700/60 hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 flex flex-col z-30 group/thumb overflow-hidden"
                     title={`Swap to ${thumbnailLabel}`}
                   >
-                    <div className="w-full h-full rounded-xl overflow-hidden relative">
+                    <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-100 dark:bg-slate-800">
+                      
+                      {!thumbImageLoaded && (
+                        <div className="absolute inset-0 bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                      )}
+
                       <div className="absolute inset-0 bg-slate-900/40 dark:bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
                         <ArrowRightLeft className="text-white drop-shadow-md" size={20} />
                       </div>
+                      
                       <img 
+                        key={thumbnailImage}
                         src={thumbnailImage} 
-                        alt="Thumbnail view" 
-                        className="w-full h-full object-cover bg-slate-200 dark:bg-slate-800"
+                        alt="Thumbnail view"
+                        onLoad={() => handleImageLoad(thumbnailImage)}
+                        className={`w-full h-full object-cover transition-all duration-700
+                          ${thumbImageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-md'}
+                        `}
                       />
                     </div>
                     <div className="absolute -bottom-2 inset-x-0 flex justify-center opacity-0 group-hover/thumb:opacity-100 group-hover/thumb:bottom-2 transition-all duration-300 z-20">
@@ -202,7 +235,7 @@ export default function ActiveGenerationPage() {
               <div className="flex flex-col w-full max-w-[300px] mt-2">
                 <button 
                   onClick={() => handleDownload(mainImage)}
-                  disabled={isDownloading}
+                  disabled={isDownloading || !mainImageLoaded}
                   className="flex items-center justify-center gap-2.5 w-full bg-slate-900 dark:bg-indigo-600 text-white font-medium py-3.5 px-6 rounded-xl shadow-lg shadow-slate-900/20 dark:shadow-indigo-900/20 hover:bg-slate-800 dark:hover:bg-indigo-500 hover:shadow-xl hover:shadow-slate-900/30 dark:hover:shadow-indigo-900/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isDownloading ? (

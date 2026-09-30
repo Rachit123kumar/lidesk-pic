@@ -1,31 +1,46 @@
-import React from 'react';
-import Sidebar from '../../components/sideBarAdmin'; // Adjust the import path if your Sidebar is elsewhere
+import React from "react";
+import Sidebar from "../../components/sideBarAdmin";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({ children }) {
+const ADMIN_EMAIL = "hellobittukumar12@gmail.com";
+
+export default async function AdminLayout({ children }) {
+  const session = await getServerSession(authOptions);
+
+  // Not logged in
+  if (!session?.user?.email) {
+    redirect("/api/auth/signin");
+  }
+
+  // Logged in but not the admin
+  if (session.user.email !== ADMIN_EMAIL) {
+    redirect("/");
+  }
+
   return (
-    // 1. Main Wrapper: Forces full screen height, flex layout, and unified background
-    <div className="flex h-screen w-full bg-[#FAFAF8] overflow-hidden text-[#0E0E10]">
-      
-      {/* 2. The Sidebar Component */}
+    <div className="flex h-screen w-full bg-[#050507] overflow-hidden text-slate-200 font-sans selection:bg-blue-500/30">
+
       <Sidebar />
 
-      {/* 3. Main Content Area */}
-      {/* flex-1 ensures it fills all remaining space, eliminating gaps. */}
-      {/* overflow-y-auto ensures the page scrolls independently of a fixed sidebar. */}
-      {/* pt-16 lg:pt-0 ensures content isn't hidden behind the mobile top-bar. */}
-      <main className="flex-1 h-full overflow-y-auto bg-[#FAFAF8] relative pt-[60px] lg:pt-0">
-        
-        {/* Optional: Adds a very subtle grid pattern to the background for that premium developer tool feel */}
-        <div 
-          className="min-h-full w-full"
+      <main className="flex-1 h-full overflow-y-auto relative pt-[60px] lg:pt-0 bg-[#050507]">
+
+        {/* Subtle Ambient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[120px] pointer-events-none rounded-full" />
+
+        {/* Premium Translucent Grid Pattern */}
+        <div
+          className="min-h-full w-full relative z-10"
           style={{
-            backgroundImage: 'radial-gradient(#E5E5E5 1px, transparent 1px)',
-            backgroundSize: '24px 24px'
+            backgroundImage:
+              "radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
           }}
         >
           {children}
         </div>
-        
+
       </main>
     </div>
   );
